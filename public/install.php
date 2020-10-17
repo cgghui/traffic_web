@@ -14,6 +14,8 @@
 // 定义应用目录
 define('APP_PATH', realpath(__DIR__ . '/../application/'));
 
+echo realpath(__DIR__ . '/../application/');
+
 // 加载框架引导文件
 require realpath(__DIR__ . '/../thinkphp/base.php');
 
