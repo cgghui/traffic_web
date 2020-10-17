@@ -13,6 +13,8 @@
 // 定义应用目录
 define('APP_PATH', realpath(__DIR__ . '/../application/'));
 
+echo APP_PATH;
+
 // 判断是否安装
 if (!is_file(APP_PATH . 'admin/command/Install/install.lock')) {
     header("location:./install.php");
