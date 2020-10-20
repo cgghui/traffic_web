@@ -194,6 +194,7 @@ class Install extends Command
             // 调用原生PDO对象进行批量查询
             $instance->getPdo()->exec($sql);
         } catch (\PDOException $e) {
+            echo $e->getMessage();
             throw new Exception($e->getMessage());
         }
         // 后台入口文件

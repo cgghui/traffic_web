@@ -4,7 +4,6 @@
 /runtime/
 /addons/
 /application/admin/command/Install/*.lock
-/public/assets/
 /public/uploads/
 .idea
 composer.lock
