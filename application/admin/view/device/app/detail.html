@@ -1,0 +1,111 @@
+<style>
+    .table-adminlog tr td {
+        word-break: break-all;
+    }
+</style>
+<table class="table table-striped">
+    <tr>
+        <td width="120">ID</td>
+        <td>{:$row.id}</td>
+    </tr>
+    <tr>
+        <td>归属会户</td>
+        <td>{:$user.nickname}</td>
+    </tr>
+    <tr>
+        <td>IP</td>
+        <td>{:$row.ip} ({:$row.ip_address}/{:$row.isp})</td>
+    </tr>
+    <tr>
+        <td>SSH连接方式</td>
+        <td><?php
+            $s = ['direct'=>__('DirectConnect'), 'hidden'=>__('HideConnect'), 'later'=>__('LaterConnect')];
+            echo $s[$row['ssh_connect_method']];
+            ?>
+        </td>
+    </tr>
+    <tr>
+        <td>SSH端口</td>
+        <td>{:$row.ssh_port}</td>
+    </tr>
+    <tr>
+        <td>SSH账号&密码</td>
+        <td>
+            <span style="border-bottom: 1px solid #d6d6d6">{:$row.ssh_username}</span>
+            <span style="border-bottom: 1px solid #d6d6d6">{:$row.ssh_password}</span>
+        </td>
+    </tr>
+    <tr>
+        <td>硬盘uuid</td>
+        <td>{:$row.disk_uuid}</td>
+    </tr>
+    <tr>
+        <td>审核状态</td>
+        <td><?php
+            $s = [
+                'waiting'   => '<span style="color: gray">待审</span>',
+            'rejected' => '<span style="color: red">驳回</span>',
+            'pass' => '<span style="color: green">通过</span>'
+            ];
+            echo $s[$row['status_review']];
+            if ($row['status_review'] == 'rejected') {
+            echo '&nbsp;&nbsp;' . $row['rejected_reason'];
+            }
+            ?>
+        </td>
+    </tr>
+    <tr>
+        <td>设备状态</td>
+        <td><?php
+            $s = [
+                'wait_handshake'    => '<span style="color: gray">就绪</span>',
+            'online' => '<span style="color: green">在线</span>',
+            'offline' => '<span style="color: red">离线</span>',
+            'abnormal' => '<span style="color: red">异常</span>',
+            'lock' => '<span style="color: red">锁定</span>',
+            ];
+            echo $s[$row['status_device']];
+            if ($row['status_device'] == 'abnormal' || $row['status_device'] == 'abnormal') {
+            echo '&nbsp;&nbsp;' . $row['status_note'];
+            }
+            ?>
+        </td>
+    </tr>
+    <tr>
+        <td>流量统计</td>
+        <td>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>月份</th>
+                    <th>已知下载量</th>
+                    <th>已知上传量</th>
+                    <th>未知下载量</th>
+                    <th>未知上传量</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+                foreach ($traffic as $t) {
+                    $mon = date('m', strtotime($t['begin_date']));
+                ?>
+                <tr>
+                    <td><b>{:$mon}月份</b></td>
+                    <td>{:round($t.count_y_d/1024/1024/1024,2)}GB</td>
+                    <td>{:round($t.count_y_u/1024/1024/1024,2)}GB</td>
+                    <td>{:round($t.count_n_d/1024/1024/1024,2)}GB</td>
+                    <td>{:round($t.count_n_u/1024/1024/1024,2)}GB</td>
+                </tr>
+                <?php }?>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+</table>
+<div class="hide layer-footer">
+    <label class="control-label col-xs-12 col-sm-2"></label>
+    <div class="col-xs-12 col-sm-8">
+        <button type="reset" class="btn btn-primary btn-embossed btn-close" onclick="Layer.closeAll();">{:__('Close')}
+        </button>
+    </div>
+</div>

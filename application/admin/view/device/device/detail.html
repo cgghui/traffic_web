@@ -1,0 +1,149 @@
+<style>
+    .table-adminlog tr td {word-break: break-all;}
+    .lock {color:grey}
+    .unlock{color:#0000ff}
+</style>
+<table class="table table-striped">
+    <tr>
+        <td width="120">ID</td>
+        <td>{:$row.id}</td>
+    </tr>
+    <tr>
+        <td>归属账户</td>
+        <td>{:$user.nickname}</td>
+    </tr>
+    <?php
+    $source = [
+        'system_ware' => '系统软件',
+        'iqiyi' => '爱奇艺'
+    ];
+    ?>
+    <tr>
+        <td>网速采集源</td>
+        <td class="field_source" val="{:$row.source}">
+            <span style="color: grey" set="system_ware">系统软件</span>
+            <span style="color: grey" set="iqiyi">爱奇艺</span>
+        </td>
+    </tr>
+    <?php
+    $row['ip'] = $row['ip'] ? $row['ip'] : '<span style="color:gray">未定义</span>';
+    $row['ip_address'] = $row['ip_address'] ? $row['ip_address'] : '<span style="color:gray">未定义</span>';
+    ?>
+    <tr>
+        <td>IP</td>
+        <td>{:$row.ip} ( {:$row.ip_address} / {:$row.isp} )</td>
+    </tr>
+    <tr>
+        <td>SSH连接方式</td>
+        <td><?php
+            $s = ['direct'=>__('DirectConnect'), 'hidden'=>__('HideConnect'), 'later'=>__('LaterConnect')];
+            echo $s[$row['ssh_connect_method']];
+            ?>
+        </td>
+    </tr>
+    <tr>
+        <td>SSH端口</td>
+        <td>{:$row.ssh_port}</td>
+    </tr>
+    <tr>
+        <td>SSH账号&密码</td>
+        <td>
+            <span style="border-bottom: 1px solid #d6d6d6">{:$row.ssh_username}</span>
+            <span style="border-bottom: 1px solid #d6d6d6">{:$row.ssh_password}</span>
+        </td>
+    </tr>
+    <tr>
+        <td>设备编号</td>
+        <td>{:$row.disk_uuid}</td>
+    </tr>
+    <tr>
+        <td>审核状态</td>
+        <td><?php
+            $s = [
+                'waiting'   => '<span style="color: gray">待审</span>',
+            'rejected' => '<span style="color: red">驳回</span>',
+            'pass' => '<span style="color: green">通过</span>'
+            ];
+            echo $s[$row['status_review']];
+            if ($row['status_review'] == 'rejected') {
+            echo '&nbsp;&nbsp;' . $row['rejected_reason'];
+            }
+            ?>
+        </td>
+    </tr>
+    <tr>
+        <td>设备状态</td>
+        <td><?php
+            $s = [
+                'wait_handshake'    => '<span style="color: gray">就绪</span>',
+            'online' => '<span style="color: green">在线</span>',
+            'offline' => '<span style="color: red">离线</span>',
+            'abnormal' => '<span style="color: red">异常</span>',
+            'lock' => '<span style="color: red">锁定</span>',
+            ];
+            echo $s[$row['status_device']];
+            if ($row['status_note'] != '') {
+                echo '&nbsp;&nbsp;<span style="color:red"><b>' . $row['status_note'] . '</b></span>';
+            }
+            ?>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <p>带宽日志 [<span id="show_month"><?=date('m月')?></span>]</p>
+            <p>
+                <a href="javascript:" class="mutex unlock" id="up_month">上</a>
+                ・
+                <a href="javascript:" class="mutex unlock" id="cur_month">现</a>
+                ・
+                <a href="javascript:" class="mutex unlock" id="down_month">下</a>
+            </p>
+        </td>
+        <td>
+            <table class="table" id="trafficTable" cur_date="<?=date('Y-m')?>" uuid="{:$row.disk_uuid}">
+                <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>上行速度</th>
+                    <th>取点次</th>
+                    <th>空闲次</th>
+                    <th>补点次</th>
+                    <th>异常</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr uuid="{:$row.disk_uuid}" last="<?=date('t')?>" style="display: none;">
+                    <td>月计</td>
+                    <td>0</td>
+                    <td>0次</td>
+                    <td>0次</td>
+                    <td>0次</td>
+                    <td><a href="javascript:;" class="tr_show">查看</a></td>
+                </tr>
+                <?php
+                $ym = date('Y-m');
+                $day = date('d');
+                for ($i = $day; $i > 0; $i--) {
+                    $i = str_pad($i, 2, '0', STR_PAD_LEFT);
+                ?>
+                <tr uuid="{:$row.disk_uuid}" date="{:$ym}-{:$i}" style="display: none;">
+                    <td>{:$i}号</td>
+                    <td>0</td>
+                    <td><a href="javascript:;">0次</a></td>
+                    <td>0次</td>
+                    <td>0次</td>
+                    <td><a href="javascript:;" class="tr_show">查看</a></td>
+                </tr>
+                <?php }?>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+</table>
+<div class="hide layer-footer">
+    <label class="control-label col-xs-12 col-sm-2"></label>
+    <div class="col-xs-12 col-sm-8">
+        <button type="reset" class="btn btn-primary btn-embossed btn-close" onclick="Layer.closeAll();">{:__('Close')}
+        </button>
+    </div>
+</div>

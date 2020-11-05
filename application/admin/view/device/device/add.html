@@ -1,0 +1,59 @@
+<form id="add-form" class="form-horizontal form-ajax" role="form" data-toggle="validator" method="POST" action="">
+    {:token()}
+    {if condition="$auth->isSuperAdmin()"}
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('BelongToUser')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {$userList}
+        </div>
+    </div>
+    {/if}
+    <div class="form-group">
+        <label for="device_ip" class="control-label col-xs-12 col-sm-2">网速采集源:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_radios('row[source]', ['system_ware'=>'系统软件', 'iqiyi'=>'爱奇艺'])}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="device_ip" class="control-label col-xs-12 col-sm-2">{:__('DeviceIP')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input type="text" class="form-control" id="device_ip" name="row[ip]" value="" data-rule="required;ip" data-rule-ip="[/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/, '{:__('IpInvalid')}']" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="ssh_port" class="control-label col-xs-12 col-sm-2">{:__('SSHPort')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input type="email" class="form-control" id="ssh_port" name="row[ssh_port]" value="22" data-rule="required;integer; range[1~65536]" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="ssh_username" class="control-label col-xs-12 col-sm-2">{:__('SSHUsername')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input type="text" class="form-control" id="ssh_username" name="row[ssh_username]" autocomplete="off" value="" data-rule="required" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="ssh_password" class="control-label col-xs-12 col-sm-2">{:__('SSHPassword')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            <input type="text" class="form-control" id="ssh_password" name="row[ssh_password]" autocomplete="off" value="" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-xs-12 col-sm-2">{:__('ConnectType')}:</label>
+        <div class="col-xs-12 col-sm-8">
+            {:build_radios('row[ssh_connect_method]', ['direct'=>__('DirectConnect'), 'hidden'=>__('HideConnect'), 'later'=>__('LaterConnect')])}
+            <div style="padding-top: 4px;color: red">
+                <div id="connect_type_direct_tip" class="connect_type_tip col-xs-12 col-sm-12" style="padding-left: 0">{:__('DirectConnectDesc')}</div>
+                <div id="connect_type_hidden_tip" class="connect_type_tip col-xs-12 col-sm-12 hide" style="padding-left: 0">{:__('HideConnectDesc')}，<a href="{$site.soft_down_url}" target="_blank">download soft</a></div>
+                <div id="connect_type_later_tip" class="connect_type_tip col-xs-12 col-sm-12 hide" style="padding-left: 0">{:__('LaterConnectDesc')}</div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group hidden layer-footer">
+        <label class="control-label col-xs-12 col-sm-2"></label>
+        <div class="col-xs-12 col-sm-8">
+            <button type="submit" class="btn btn-success btn-embossed disabled">保存</button>
+            <button type="reset" class="btn btn-default btn-embossed">{:__('Reset')}</button>
+        </div>
+    </div>
+</form>

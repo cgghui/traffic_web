@@ -252,7 +252,7 @@ class Backend extends Controller
      * @param boolean $relationSearch 是否关联查询
      * @return array
      */
-    protected function buildparams($searchfields = null, $relationSearch = null)
+    protected function buildparams($searchfields = null, $relationSearch = null, $whereAdd = [])
     {
         $searchfields = is_null($searchfields) ? $this->searchFields : $searchfields;
         $relationSearch = is_null($relationSearch) ? $this->relationSearch : $relationSearch;
@@ -410,6 +410,9 @@ class Backend extends Controller
             $this->model->alias($alias);
         }
         $model = $this->model;
+        if ($whereAdd) {
+            $where = array_merge($where, $whereAdd);
+        }
         $where = function ($query) use ($where, $alias, $bind, &$model) {
             if (!empty($model)) {
                 $model->alias($alias);

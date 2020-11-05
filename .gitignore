@@ -118,3 +118,11 @@ composer.lock
 /public/assets/libs/tableExport.jquery.plugin/
 /public/assets/libs/toastr/
 /public/assets/index.html
+/public/assets/css/backend.min.css
+/public/assets/css/bootstrap.min.css
+/public/assets/css/fastadmin.min.css
+/public/assets/css/frontend.min.css
+/public/assets/js/dropzone.min.js
+/public/assets/js/require.min.js
+/public/assets/js/require-backend.min.js
+/public/assets/js/require-frontend.min.js

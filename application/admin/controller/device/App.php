@@ -11,18 +11,16 @@ use think\Db;
  * 设备管理
  *
  */
-class Device extends Backend
+class App extends Backend
 {
 
     protected $model = null;
-    protected $model_log = null;
     private $uid = 0;
 
     public function _initialize()
     {
         parent::_initialize();
-        $this->model = model('TrafficUserDevice');
-        $this->model_log = model('TrafficUserDeviceLog');
+        $this->model = model('TrafficUserApp');
         $this->uid = $this->auth->getUserInfo()['id'];
     }
 
@@ -73,7 +71,6 @@ class Device extends Backend
                 $params['created_at'] = $t;
                 $params['updated_at'] = $t;
                 model('TrafficUserDevice')->save($params);
-                $this->model->ServiceRefreshDeviceCache();
                 $this->success();
             }
             $this->error();
@@ -104,8 +101,7 @@ class Device extends Backend
         }
         $row['status_note'] = '';
         if ($row['status_device'] == 'abnormal' || $row['status_device'] == 'lock') {
-            $in = ['abnormal', 'lock', 'collect_fail'];
-            $data = $this->model_log->where(['device_id' => $row['id'], 'status' => ['in', $in]])->order('report_datetime DESC')->find();
+            $data = $this->model_log->where(['device_id' => $row['id'], 'status' => ['abnormal', 'lock']])->order('report_datetime DESC')->find();
             if ($data) {
                 $row['status_note'] = $data['message'];
             }
@@ -194,7 +190,6 @@ class Device extends Backend
                     }
                 }
                 Db::commit();
-                $this->model->ServiceRefreshDeviceCache();
                 $this->success();
             }
             $this->error();
@@ -311,7 +306,6 @@ class Device extends Backend
                     $ret[$row['id']] = 'failure';
                 }
             }
-            $this->model->ServiceRefreshDeviceCache();
             $this->success("ok", null, $ret);
         }
         $this->error(__('Parameter %s can not be empty', 'ids'));
@@ -336,128 +330,15 @@ class Device extends Backend
         }
         $row['status_note'] = '';
         if ($row['status_device'] == 'abnormal' || $row['status_device'] == 'lock') {
-            $in = ['abnormal', 'lock', 'collect_fail'];
-            $data = $this->model_log->where(['device_id' => $row['id'], 'status' => ['in', $in]])->order('report_datetime DESC')->find();
+            $data = $this->model_log->where(['device_id' => $row['id'], 'status' => ['abnormal', 'lock']])->order('report_datetime DESC')->find();
             if ($data) {
                 $row['status_note'] = $data['message'];
             }
         }
         $this->view->assign('row', $row->toArray());
+        $this->view->assign('traffic', $this->model->NetworkCountByUUID($row['disk_uuid']));
         $this->view->assign('user', model('Admin')->get(['id' => $row['user_id']])->toArray());
         return $this->view->fetch();
-    }
-
-    /**
-     * 获取设备日志
-     * @param $uuid
-     * @param $date
-     */
-    public function get_device_log($uuid, $date)
-    {
-        if ($this->auth->isSuperAdmin() == false) {
-            $row = $this->model->get(['disk_uuid' => $uuid, 'user_id' => $this->uid]);
-        } else {
-            $row = $this->model->get(['disk_uuid' => $uuid]);
-        }
-        if (!$row) {
-            echo '[]';
-            return;
-        }
-        $result = [];
-        $where = [
-            'device_id' => $row['id'],
-        ];
-        if ($date == 'cur') {
-            if ($_GET['st'] && $_GET['et']) {
-                $date_f = $_GET['st'];
-                $date_l = $_GET['et'];
-            } else {
-                $date_f = date('Y-m-01');
-                $date_l = date('Y-m-d', strtotime($date_f . ' +1 month -1 day'));
-            }
-            $where['report_date'] = ['between', $date_f . ',' . $date_l];
-        } else {
-            $where['report_date'] = $date;
-        }
-        $fields = 'id,client_ip,status,message,report_datetime';
-        foreach ($this->model_log->where($where)->order('report_datetime ASC')->column($fields) as $id => $row) {
-            unset($row['id']);
-            $result[] = $row;
-        }
-        echo json_encode($result);
-    }
-
-    /**
-     * 获取流量数据
-     * @param $uuid
-     * @param $date
-     */
-    public function get_traffic_count($uuid, $date)
-    {
-        if ($this->auth->isSuperAdmin() == false) {
-            $row = $this->model->get(['disk_uuid' => $uuid, 'user_id' => $this->uid]);
-            if (!$row) {
-                echo '{"Total":0,"Posi":0,"Traffic":"","Bad":99999}';
-                return;
-            }
-        }
-        if ($date == 'cur') {
-            if ($_GET['st'] && $_GET['et']) {
-                echo json_encode($this->model->Device_Network_CDN_Count_95($uuid, $_GET['st'], $_GET['et']));
-            } else {
-                $date = date('Y-m-d', strtotime(date('Y-m-01') . ' +1 month -1 day'));
-                echo json_encode($this->model->Device_Network_CDN_Count_95($uuid, '', $date));
-            }
-        } else {
-            echo json_encode($this->model->Device_Network_CDN_Count_95($uuid, $date, ''));
-        }
-    }
-
-    /**
-     * 获取设备 当天、当月、上月的95带宽速度
-     * @param $uuid
-     */
-    public function get_traffic_device_count($uuid)
-    {
-        if ($this->auth->isSuperAdmin() == false) {
-            $row = $this->model->get(['disk_uuid' => $uuid, 'user_id' => $this->uid]);
-            if (!$row) {
-                echo '{"Total":0,"Posi":0,"Traffic":"","Bad":99999}';
-                return;
-            }
-        }
-        $result = ['today' => [], 'month' => [], 'up_month' => []];
-        $result['today'] = $this->model->Device_Network_CDN_Count_95($uuid, date('Y-m-d'), '');
-        $result['month'] = $this->model->Device_Network_CDN_Count_95($uuid, '', date('Y-m-d'));
-        $begin_time = date('Y-m-01', strtotime('-1 month'));
-        $end_time = date("Y-m-d", strtotime(-date('d') . 'day'));
-        $result['up_month'] = $this->model->Device_Network_CDN_Count_95($uuid, $begin_time, $end_time);
-        echo json_encode($result);
-    }
-
-    /**
-     * 获取取点数据
-     * @param $uuid
-     * @param $date
-     */
-    public function get_device_dot_log($uuid, $date)
-    {
-        if ($this->auth->isSuperAdmin() == false) {
-            $row = $this->model->get(['disk_uuid' => $uuid, 'user_id' => $this->uid]);
-            if (!$row) {
-                echo '{"Total":0,"Posi":0,"Traffic":"","Bad":99999}';
-                return;
-            }
-        }
-        $m = model('TrafficNetworkLog');
-        $w = ['device_disk_uuid' => $uuid, 'log_date' => $date];
-        $f = 'id, count_y_d, count_y_u, log_upload_time';
-        $result = [];
-        foreach ($m->where($w)->order('log_upload_time ASC')->column($f) as $id => $row) {
-            unset($row['id']);
-            $result[] = $row;
-        }
-        echo json_encode($result);
     }
 
     /**
