@@ -261,14 +261,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                     [
                         {checkbox: true},
                         {field: 'id', title: __('Id'), sortable: true, operate: false},
-                        {
-                            field: 'ip', title: '设备IP/编号', operate: 'LIKE', formatter: function (value, row) {
-                                if (value === '') {
-                                    return row.disk_uuid;
-                                }
-                                return value;
-                            }
-                        },
+                        {field: 'disk_uuid', title: '设备编号', operate: 'LIKE'},
+                        {field: 'ip', title: '设备IP', operate: 'LIKE'},
                         {field: 'ip_address', title: '所在地', operate: 'LIKE'},
                         {field: 'isp', title: '运营商', operate: 'LIKE'},
                         {

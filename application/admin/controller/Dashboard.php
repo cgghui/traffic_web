@@ -3,6 +3,7 @@
 namespace app\admin\controller;
 
 use app\common\controller\Backend;
+use fast\Date;
 use think\Config;
 
 /**
@@ -14,12 +15,20 @@ use think\Config;
 class Dashboard extends Backend
 {
 
+    private $uid = 0;
+
+    public function _initialize()
+    {
+        parent::_initialize();
+        $this->uid = $this->auth->getUserInfo()['id'];
+    }
+
     /**
      * 查看
      */
     public function index()
     {
-        $seventtime = \fast\Date::unixtime('day', -7);
+        $seventtime = Date::unixtime('day', -7);
         $paylist = $createlist = [];
         for ($i = 0; $i < 7; $i++)
         {
@@ -33,22 +42,42 @@ class Dashboard extends Backend
         Config::parse($addonComposerCfg, "json", "composer");
         $config = Config::get("composer");
         $addonVersion = isset($config['version']) ? $config['version'] : __('Unknown');
-        $this->view->assign([
-            'totaluser'        => 35200,
-            'totalviews'       => 219390,
-            'totalorder'       => 32143,
-            'totalorderamount' => 174800,
-            'todayuserlogin'   => 321,
-            'todayusersignup'  => 430,
-            'todayorder'       => 2324,
-            'unsettleorder'    => 132,
-            'sevendnu'         => '80%',
-            'sevendau'         => '32%',
-            'paylist'          => $paylist,
-            'createlist'       => $createlist,
-            'addonversion'       => $addonVersion,
-            'uploadmode'       => $uploadmode
-        ]);
+        $device = model('TrafficUserDevice');
+        if ($this->auth->isSuperAdmin()) {
+            $this->view->assign([
+                'total_user'        => model('Admin')->where(['status' => 'normal'])->count('id'),
+                'total_device'      => $device->count('id'),
+                'totalorder'       => 32143,
+                'totalorderamount' => 174800,
+                'todayuserlogin'   => 321,
+                'todayusersignup'  => 430,
+                'todayorder'       => 2324,
+                'unsettleorder'    => 132,
+                'sevendnu'         => '80%',
+                'sevendau'         => '32%',
+                'paylist'          => $paylist,
+                'createlist'       => $createlist,
+                'addonversion'       => $addonVersion,
+                'uploadmode'       => $uploadmode
+            ]);
+        } else {
+            $this->view->assign([
+                'total_user'        => 1,
+                'total_device'      => $device->where(['user_id' => $this->uid])->count('id'),
+                'totalorderamount' => 174800,
+                'todayuserlogin'   => 321,
+                'todayusersignup'  => 430,
+                'todayorder'       => 2324,
+                'unsettleorder'    => 132,
+                'sevendnu'         => '80%',
+                'sevendau'         => '32%',
+                'paylist'          => $paylist,
+                'createlist'       => $createlist,
+                'addonversion'       => $addonVersion,
+                'uploadmode'       => $uploadmode
+            ]);
+        }
+
 
         return $this->view->fetch();
     }
