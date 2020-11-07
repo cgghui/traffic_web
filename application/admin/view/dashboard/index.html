@@ -227,7 +227,7 @@
                                     <h5>今日上载速度</h5>
                                 </div>
                                 <div class="panel-content">
-                                    <h1 class="no-margins">0byte/s</h1>
+                                    <h1 class="no-margins"><?=$model->size_format($count['ts'])?>/s</h1>
                                 </div>
                             </div>
                         </div>
@@ -252,7 +252,7 @@
                                     <h5>本月上载速度</h5>
                                 </div>
                                 <div class="ibox-content">
-                                    <h1 class="no-margins">0byte/s</h1>
+                                    <h1 class="no-margins"><?=$model->size_format($count['mt'])?>/s</h1>
                                 </div>
                             </div>
                         </div>
@@ -264,7 +264,7 @@
                                     <h5>上个月上载速度</h5>
                                 </div>
                                 <div class="ibox-content">
-                                    <h1 class="no-margins">0byte/s</h1>
+                                    <h1 class="no-margins"><?=$model->size_format($count['ut'])?>/s</h1>
                                 </div>
                             </div>
                         </div>
@@ -281,12 +281,3 @@
         </div>
     </div>
 </div>
-<!--@formatter:off-->
-<script>
-    var Orderdata = {
-        column: {:json_encode(array_keys($paylist))},
-        paydata: {:json_encode(array_values($paylist))},
-        createdata: {:json_encode(array_values($createlist))},
-    };
-</script>
-<!--@formatter:on-->
