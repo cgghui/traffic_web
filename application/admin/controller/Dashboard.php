@@ -48,6 +48,7 @@ class Dashboard extends Backend
                 'total_user' => model('Admin')->where(['status' => 'normal'])->count('id'),
                 'total_device' => $device->count('id'),
                 'total_device_online' => $device->where(['status_device' => ['in', $in]])->count('id'),
+                'total_device_review' => $device->where(['status_review' => ['neq', 'pass']])->count('id'),
                 'totalorder' => 32143,
                 'totalorderamount' => 174800,
                 'todayuserlogin' => 321,
@@ -64,8 +65,9 @@ class Dashboard extends Backend
         } else {
             $this->view->assign([
                 'total_user' => 1,
-                'total_device' => $device->where(['status_device' => ['in', $in], 'user_id' => $this->uid])->count('id'),
-                'total_device_online' => $device->where(['user_id' => $this->uid])->count('id'),
+                'total_device' => $device->where(['user_id' => $this->uid])->count('id'),
+                'total_device_online' => $device->where(['status_device' => ['in', $in],'user_id' => $this->uid])->count('id'),
+                'total_device_review' => $device->where(['status_review' => ['neq', 'pass'],'user_id' => $this->uid])->count('id'),
                 'totalorderamount' => 174800,
                 'todayuserlogin' => 321,
                 'todayusersignup' => 430,
