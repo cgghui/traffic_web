@@ -45,12 +45,13 @@ class TrafficUserDevice extends Model
         ];
         $resp = Http::post(static::$service_api_url . '/network_count_95_by_device', json_encode($params));
         $resp = json_decode($resp, true)['traffic'];
-        $resp['Traffic'] = static::size_format($resp['Traffic'] * 1024);
+        $resp['Traffic'] = static::size_format($resp['Traffic']);
         return $resp;
     }
 
     public static function size_format($num)
     {
+        $num = $num  * 1024;
         $p = 0;
         $format = 'b';
         if ($num > 0 && $num < 1024) {
