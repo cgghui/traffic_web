@@ -45,7 +45,7 @@ class TrafficUserDevice extends Model
         ];
         $resp = Http::post(static::$service_api_url . '/network_count_95_by_device', json_encode($params));
         $resp = json_decode($resp, true)['traffic'];
-        $resp['Traffic'] = static::size_format($resp['Traffic']);
+        $resp['Traffic'] = static::size_format($resp['Traffic'] * 1024);
         return $resp;
     }
 
@@ -111,5 +111,20 @@ class TrafficUserDevice extends Model
         $resp = json_decode($resp, true);
         return $resp['msg'] == 'successful' && $resp['close_num'] > 0;
     }
+
+    // ServiceGetOnlineDevice 断开客户端的连接
+//    public static function ServiceGetOnlineDevice($app_id)
+//    {
+//        $resp = http::get(static::$service_api_url . '/get_online_devices');
+//        $resp = json_decode($resp, true);
+//        if ($app_id == '') {
+//            return $resp;
+//        }
+//        foreach ($resp as $i => $row) {
+//            if ($row['app_id'] == $app_id) {
+//
+//            }
+//        }
+//    }
 
 }

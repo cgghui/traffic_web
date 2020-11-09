@@ -45,6 +45,20 @@ class App extends Backend
         return $this->view->fetch();
     }
 
+    public function get_username($user_ids) {
+        $m = model('Admin');
+        if ($this->auth->isSuperAdmin()) {
+            $r = $m->where(['id' => ['IN', explode(',', $user_ids)]])->column('id,username');
+        } else {
+            $r = $m->where(['id' => $this->uid])->column('id,username');
+        }
+        echo json_encode($r);
+    }
+
+    public function get_online_device() {
+
+    }
+
     /**
      * 添加
      */
@@ -197,80 +211,6 @@ class App extends Backend
         $this->view->assign("row", $row);
         $this->user_list_html($row['user_id']);
         return $this->view->fetch();
-    }
-
-    /*
-     * 连接SSH
-     */
-    public function connect_ssh($id)
-    {
-        if ($this->auth->isSuperAdmin()) {
-            $row = $this->model->get(['id' => $id]);
-        } else {
-            $row = $this->model->get(['id' => $id, 'user_id' => $this->uid]);
-        }
-        if (!$row) {
-            $this->error(__('No Results were found'));
-        }
-        $result = $this->model->ServiceConnectSSH($row);
-        if ($result['msg'] != 'successful') {
-            $this->error($result['msg']);
-        }
-        if ($result['uuid'] == $row['disk_uuid']) {
-            $this->success();
-        }
-        $has = $this->model->where(['disk_uuid' => $result['uuid']])->find();
-        if (!$has) {
-            $this->model->where(['id' => $row['id']])->update(['disk_uuid' => $result['uuid']]);
-        }
-        $this->success();
-    }
-
-    public function is_online($uuid)
-    {
-        if ($this->auth->isSuperAdmin()) {
-            $row = $this->model->get(['disk_uuid' => $uuid]);
-        } else {
-            $row = $this->model->get(['disk_uuid' => $uuid, 'user_id' => $this->uid]);
-        }
-        if (!$row) {
-            $this->error(__('No Results were found'));
-        }
-        $result = $this->model->ServiceGetOnlineDevices();
-        $isOnline = false;
-        foreach ($result as $online) {
-            if ($online['client_disk_uuid'] == $row['disk_uuid']) {
-                $row->allowField(true)->isUpdate(true)->save(['status_device' => 'online']);
-                $isOnline = true;
-                break;
-            }
-        }
-        if ($isOnline) {
-            $this->success();
-        } else {
-            $this->error();
-        }
-    }
-
-    /*
-     * 断开客户端的连接
-     */
-    public function connect_close($id)
-    {
-        if ($this->auth->isSuperAdmin()) {
-            $row = $this->model->get(['id' => $id]);
-        } else {
-            $row = $this->model->get(['id' => $id, 'user_id' => $this->uid]);
-        }
-        if (!$row) {
-            $this->error(__('No Results were found'));
-        }
-        $result = $this->model->ServiceConnectClose($row['disk_uuid']);
-        if ($result) {
-            $this->success();
-        } else {
-            $this->error();
-        }
     }
 
     /**
