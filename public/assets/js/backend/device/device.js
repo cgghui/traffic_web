@@ -34,7 +34,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
     };
 
     function change(bytes) {
-        return  bytes;
         if (bytes === 0) return '0 byte';
         let k = 1024, i, sizes;
         sizes = ['byte', 'kb', 'mb', 'gb', 'tb', 'pb', 'EB', 'ZB', 'YB'];

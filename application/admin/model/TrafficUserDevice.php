@@ -51,7 +51,6 @@ class TrafficUserDevice extends Model
 
     public static function size_format($num)
     {
-        return $num;
         $p = 0;
         $format = 'b';
         if ($num > 0 && $num < 1024) {
