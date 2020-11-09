@@ -60,19 +60,19 @@ class TrafficUserDevice extends Model
         }
         if ($num >= 1024 && $num < pow(1024, 2)) {
             $p = 1;
-            $format = 'kb';
+            $format = 'kbps';
         }
         if ($num >= pow(1024, 2) && $num < pow(1024, 3)) {
             $p = 2;
-            $format = 'mb';
+            $format = 'mbps';
         }
         if ($num >= pow(1024, 3) && $num < pow(1024, 4)) {
             $p = 3;
-            $format = 'gb';
+            $format = 'gbps';
         }
         if ($num >= pow(1024, 4) && $num < pow(1024, 5)) {
             $p = 3;
-            $format = 'tb';
+            $format = 'tbps';
         }
         $num /= pow(1024, $p);
         return number_format($num, 2) . $format;
