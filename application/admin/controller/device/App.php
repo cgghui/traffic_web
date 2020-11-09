@@ -55,8 +55,8 @@ class App extends Backend
         echo json_encode($r);
     }
 
-    public function get_online_device() {
-
+    public function get_online_device($ids) {
+        print_r(model('TrafficUserDevice')->ServiceGetOnlineDevice(explode(',', $ids)));
     }
 
     /**

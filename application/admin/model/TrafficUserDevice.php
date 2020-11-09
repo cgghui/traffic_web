@@ -51,6 +51,7 @@ class TrafficUserDevice extends Model
 
     public static function size_format($num)
     {
+        $num = $num * 8;
         $p = 0;
         $format = 'b';
         if ($num > 0 && $num < 1024) {
@@ -113,18 +114,20 @@ class TrafficUserDevice extends Model
     }
 
     // ServiceGetOnlineDevice 断开客户端的连接
-//    public static function ServiceGetOnlineDevice($app_id)
-//    {
-//        $resp = http::get(static::$service_api_url . '/get_online_devices');
-//        $resp = json_decode($resp, true);
-//        if ($app_id == '') {
-//            return $resp;
-//        }
-//        foreach ($resp as $i => $row) {
-//            if ($row['app_id'] == $app_id) {
-//
-//            }
-//        }
-//    }
+    public static function ServiceGetOnlineDevice($app_ids)
+    {
+        $resp = http::get(static::$service_api_url . '/get_online_devices');
+        $resp = json_decode($resp, true);
+        if (!$app_ids) {
+            return $resp;
+        }
+        $ret = [];
+        foreach ($resp as $i => $row) {
+            if (in_array($row['app_id'], $app_ids)) {
+                $ret[] = $row;
+            }
+        }
+        return $ret;
+    }
 
 }

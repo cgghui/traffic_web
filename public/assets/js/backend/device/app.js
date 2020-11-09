@@ -61,9 +61,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
 
             table.on("load-success.bs.table", function (e, data) {
                 const rows = data.rows;
-                let user_ids = [], i;
+                let user_ids = [], ids = [], i;
                 for (i = 0; i < rows.length; i++) {
                     user_ids.push(rows[i].user_id);
+                    ids.push(rows[i].id);
                 }
                 $.get("device/app/get_username?user_ids=" + user_ids.join(","), function (resp) {
                     $.each(resp, function (id, name) {
@@ -80,7 +81,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                         }
                     })
                 }, "json");
-                $.get("device/app/get_online_device", function () {
+                $.get("device/app/get_online_device?ids=" + ids.join(","), function () {
 
                 }, "json");
             })
