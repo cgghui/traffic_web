@@ -164,7 +164,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
             url = 'device/device/get_traffic_count?uuid=' + tr.attr('uuid') + '&date=' + dateStr;
         }
         $.get(url, function (resp) {
-            tr.find("td:eq(1)").html(resp.Traffic + "/s");
+            tr.find("td:eq(1)").html(resp.Traffic);
             if (tr.attr("last") === undefined) {
                 tr.find("td:eq(2) .do_show").html(`${resp.Total}次`);
             } else {
