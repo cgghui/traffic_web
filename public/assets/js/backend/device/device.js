@@ -34,8 +34,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
     };
 
     function change(bytes) {
+        return  bytes;
         if (bytes === 0) return '0 byte';
-        bytes = bytes * 1024;
         let k = 1024, i, sizes;
         sizes = ['byte', 'kb', 'mb', 'gb', 'tb', 'pb', 'EB', 'ZB', 'YB'];
         i = Math.floor(Math.log(bytes) / Math.log(k));
