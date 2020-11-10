@@ -35,9 +35,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
 
     function change(bytes) {
         bytes = bytes * 8;
-        if (bytes === 0) return '0 byte';
+        if (bytes === 0) return '0 bps';
         let k = 1024, i, sizes;
-        sizes = ['byte', 'kbps', 'mbps', 'gbps', 'tbps', 'pbps', 'ebps', 'zbps', 'ybps'];
+        sizes = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps', 'Ebps', 'Zbps', 'Ybps'];
         i = Math.floor(Math.log(bytes) / Math.log(k));
         return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
     }
@@ -285,6 +285,14 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                             field: 'up_month_95', title: '上月速度', operate: false, sortable: true,
                             formatter: function (val) {
                                 return change(val);
+                            }
+                        },
+                        {
+                            title: '上月均速', operate: false,
+                            formatter: function (val, row) {
+                                const now = new Date();
+                                const cur = new Date(now.getFullYear(), now.getMonth(), 0);
+                                return change((row.up_month_95 / cur.getDate()).toFixed(0));
                             }
                         },
                         {
