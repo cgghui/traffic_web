@@ -36,7 +36,7 @@ class TrafficUserDevice extends Model
         return ['addr' => $resp['data'][0] . $resp['data'][1] . $resp['data'][2] . $resp['data'][3], 'isp' => $resp['data'][4]];
     }
 
-    public static function Device_Network_CDN_Count_95($uuid, $st = '', $et = '')
+    public static function Device_Network_CDN_Count_95($uuid, $st = '', $et = '', $format = true)
     {
         $params = [
             'st' => $st,
@@ -45,7 +45,9 @@ class TrafficUserDevice extends Model
         ];
         $resp = Http::post(static::$service_api_url . '/network_count_95_by_device', json_encode($params));
         $resp = json_decode($resp, true)['traffic'];
-        $resp['Traffic'] = static::size_format($resp['Traffic']);
+        if ($format) {
+            $resp['Traffic'] = static::size_format($resp['Traffic']);
+        }
         return $resp;
     }
 

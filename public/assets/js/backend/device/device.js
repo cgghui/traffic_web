@@ -287,14 +287,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                                 return change(val);
                             }
                         },
-                        {
-                            title: '上月均速', operate: false,
-                            formatter: function (val, row) {
-                                const now = new Date();
-                                const cur = new Date(now.getFullYear(), now.getMonth(), 0);
-                                return change((row.up_month_95 / cur.getDate()).toFixed(0));
-                            }
-                        },
+                        {field: 'up_month_average', title: '上月均速', operate: false},
                         {
                             field: 'status_review',
                             title: '审核',
@@ -335,27 +328,27 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
 
             // 为表格绑定事件
             Table.api.bindevent(table);
-            // function load_device_95(t, i, data) {
-            //     if (typeof data[i] === "undefined") {
-            //         return;
-            //     }
-            //     $.get("device/device/get_traffic_device_count?uuid=" + data[i]["disk_uuid"], function (resp) {
-            //         $("#table").bootstrapTable('updateRow', {
-            //             index: i,
-            //             replace: true,
-            //             row: {
-            //                 today_95: resp.today.Traffic,
-            //                 month_95: resp.month.Traffic,
-            //                 up_month_95: resp.up_month.Traffic
-            //             }
-            //         });
-            //         load_device_95(t, i + 1, data);
-            //     }, "json");
-            // }
-            //
-            // table.on("load-success.bs.table", function (e, data) {
-            //     load_device_95(table, 0, data.rows)
-            // })
+            function load_device_95(t, i, data) {
+                if (typeof data[i] === "undefined") {
+                    return;
+                }
+                const now = new Date();
+                const cur = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+                $.get("device/device/get_up_traffic_average?uuid=" + data[i]["disk_uuid"], function (resp) {
+                    $("#table").bootstrapTable('updateRow', {
+                        index: i,
+                        replace: true,
+                        row: {
+                            up_month_average: change((resp.total / cur).toFixed(0))
+                        }
+                    });
+                    load_device_95(t, i + 1, data);
+                }, "json");
+            }
+
+            table.on("load-success.bs.table", function (e, data) {
+                load_device_95(table, 0, data.rows)
+            })
         },
         add: function () {
             EditOrAddPublic();

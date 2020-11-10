@@ -204,6 +204,28 @@ class Device extends Backend
         return $this->view->fetch();
     }
 
+    public function get_up_traffic_average($uuid)
+    {
+        $end_time = date("Y-m-d", strtotime(-date('d') . 'day'));
+        $say = explode('-', $end_time);
+        $day = intval($say[2]);
+        $mod = model('TrafficUserDevice');
+        $cnt = 0;
+        for ($i = 1; $i <= $day; $i++) {
+            if ($i < 10) {
+                $say[2] = '0' . $i;
+            } else {
+                $say[2] = $i;
+            }
+            $r = $mod->Device_Network_CDN_Count_95($uuid, implode('-', $say), '', false);
+            $cnt += $r['Traffic'];
+//
+//            $r = model('TrafficNetworkLog')->where(['device_disk_uuid' => $uuid, 'log_date' => implode('-', $say)])->column('SUM(count_y_u) AS SumVal');
+//            $cnt += $r[0];
+        }
+        echo json_encode(['total' => $cnt]);
+    }
+
     /*
      * 连接SSH
      */
