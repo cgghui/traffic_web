@@ -207,9 +207,9 @@ class Device extends Backend
     public function get_up_traffic_average($uuid, $isp)
     {
         $ispT = [
-            '电信' => 'fa_traffic_network_counts_95_dx',
+            '电信' => 'fa_traffic_network_counts_95_dxlt',
             '移动' => 'fa_traffic_network_counts_95_yd',
-            '联通' => 'fa_traffic_network_counts_95_lt',
+            '联通' => 'fa_traffic_network_counts_95_dxlt',
         ];
         if (isset($ispT[$isp]) == false) {
             $this->error('不支持该运营商');
