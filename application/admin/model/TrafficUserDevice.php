@@ -132,4 +132,11 @@ class TrafficUserDevice extends Model
         return $ret;
     }
 
+    public static function up_time_stamp() {
+        return strtotime('-1 month');
+    }
+
+    public static function month_day($time) {
+        return date('Y-m-t', $time);
+    }
 }

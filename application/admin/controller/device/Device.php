@@ -204,26 +204,22 @@ class Device extends Backend
         return $this->view->fetch();
     }
 
-    public function get_up_traffic_average($uuid)
+    public function get_up_traffic_average($uuid, $isp)
     {
-        $end_time = date("Y-m-d", strtotime(-date('d') . 'day'));
-        $say = explode('-', $end_time);
-        $day = intval($say[2]);
-        $mod = model('TrafficUserDevice');
-        $cnt = 0;
-        for ($i = 1; $i <= $day; $i++) {
-            if ($i < 10) {
-                $say[2] = '0' . $i;
-            } else {
-                $say[2] = $i;
-            }
-            $r = $mod->Device_Network_CDN_Count_95($uuid, implode('-', $say), '', false);
-            $cnt += $r['Traffic'];
-//
-//            $r = model('TrafficNetworkLog')->where(['device_disk_uuid' => $uuid, 'log_date' => implode('-', $say)])->column('SUM(count_y_u) AS SumVal');
-//            $cnt += $r[0];
+        $ispT = [
+            '电信' => 'fa_traffic_network_counts_95_dx',
+            '移动' => 'fa_traffic_network_counts_95_yd',
+            '联通' => 'fa_traffic_network_counts_95_lt',
+        ];
+        if (isset($ispT[$isp]) == false) {
+            $this->error('不支持该运营商');
         }
-        echo json_encode(['total' => $cnt]);
+        $timestamp = $this->model->up_time_stamp();
+        $ym = date('Y-m', $timestamp);
+        $st = $ym . '-01';
+        $et = $ym . '-' . date('t', $timestamp);
+        $r = $this->model->query('SELECT ROUND(AVG(speed_byte)) AS cnt FROM `' . $ispT[$isp] . '` WHERE `device_disk_uuid` = "' . $uuid . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '"')[0]['cnt'];
+        echo json_encode(['total' => intval($r)]);
     }
 
     /*

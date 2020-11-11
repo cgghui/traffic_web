@@ -334,12 +334,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                 }
                 const now = new Date();
                 const cur = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-                $.get("device/device/get_up_traffic_average?uuid=" + data[i]["disk_uuid"], function (resp) {
+                const dev = data[i];
+                if (dev["isp"] === '') {
+                    load_device_95(t, i + 1, data);
+                    return;
+                }
+                $.get("device/device/get_up_traffic_average?uuid=" + dev["disk_uuid"] + "&isp=" + dev["isp"] , function (resp) {
                     $("#table").bootstrapTable('updateRow', {
                         index: i,
                         replace: true,
                         row: {
-                            up_month_average: change((resp.total / cur).toFixed(0))
+                            up_month_average: change(resp.total)
                         }
                     });
                     load_device_95(t, i + 1, data);
