@@ -287,7 +287,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                                 return change(val);
                             }
                         },
-                        {field: 'up_month_average', title: '上月均速', operate: false},
+                        {
+                            field: 'up_month_average', title: '上月均速', operate: false, sortable: true,
+                            formatter: function (val) {
+                                return change(val);
+                            }
+                        },
                         {
                             field: 'status_review',
                             title: '审核',
@@ -328,32 +333,32 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
 
             // 为表格绑定事件
             Table.api.bindevent(table);
-            function load_device_95(t, i, data) {
-                if (typeof data[i] === "undefined") {
-                    return;
-                }
-                const now = new Date();
-                const cur = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-                const dev = data[i];
-                if (dev["isp"] === '') {
-                    load_device_95(t, i + 1, data);
-                    return;
-                }
-                $.get("device/device/get_up_traffic_average?uuid=" + dev["disk_uuid"] + "&isp=" + dev["isp"] , function (resp) {
-                    $("#table").bootstrapTable('updateRow', {
-                        index: i,
-                        replace: true,
-                        row: {
-                            up_month_average: change(resp.total)
-                        }
-                    });
-                    load_device_95(t, i + 1, data);
-                }, "json");
-            }
-
-            table.on("load-success.bs.table", function (e, data) {
-                load_device_95(table, 0, data.rows)
-            })
+            // function load_device_95(t, i, data) {
+            //     if (typeof data[i] === "undefined") {
+            //         return;
+            //     }
+            //     const now = new Date();
+            //     const cur = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+            //     const dev = data[i];
+            //     if (dev["isp"] === '') {
+            //         load_device_95(t, i + 1, data);
+            //         return;
+            //     }
+            //     $.get("device/device/get_up_traffic_average?uuid=" + dev["disk_uuid"] + "&isp=" + dev["isp"] , function (resp) {
+            //         $("#table").bootstrapTable('updateRow', {
+            //             index: i,
+            //             replace: true,
+            //             row: {
+            //                 up_month_average: change(resp.total)
+            //             }
+            //         });
+            //         load_device_95(t, i + 1, data);
+            //     }, "json");
+            // }
+            //
+            // table.on("load-success.bs.table", function (e, data) {
+            //     load_device_95(table, 0, data.rows)
+            // })
         },
         add: function () {
             EditOrAddPublic();
