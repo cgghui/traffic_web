@@ -53,4 +53,32 @@ class Dashboard2 extends Backend
         }
     }
 
+    public function count_dl()
+    {
+        $this->request->filter(['strip_tags', 'trim']);
+        if ($this->request->isAjax()) {
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null, null);
+            $list = $this->model->table('fa_traffic_network_counts_dxlt')->where($where)->order($sort, $order)->paginate($limit);
+            $result = array("total" => $list->total(), "rows" => $list->items());
+            return json($result);
+        }
+    }
+
+    public function count_yd()
+    {
+        $this->request->filter(['strip_tags', 'trim']);
+        if ($this->request->isAjax()) {
+            if ($this->request->request('keyField')) {
+                return $this->selectpage();
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null, null);
+            $list = $this->model->table('fa_traffic_network_counts_yd')->where($where)->order($sort, $order)->paginate($limit);
+            $result = array("total" => $list->total(), "rows" => $list->items());
+            return json($result);
+        }
+    }
+
 }

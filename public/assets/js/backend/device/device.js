@@ -36,7 +36,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
     function change(bytes) {
         bytes = bytes * 8;
         if (bytes === 0) return '0 bps';
-        let k = 1024, i, sizes;
+        let k = 1000, i, sizes;
         sizes = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps', 'Ebps', 'Zbps', 'Ybps'];
         i = Math.floor(Math.log(bytes) / Math.log(k));
         return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
