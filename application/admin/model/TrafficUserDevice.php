@@ -53,30 +53,31 @@ class TrafficUserDevice extends Model
 
     public static function size_format($num)
     {
+        $unit = 1000;
         $num = $num * 8;
         $p = 0;
         $format = 'b';
-        if ($num > 0 && $num < 1024) {
+        if ($num > 0 && $num < $unit) {
             $p = 0;
             return number_format($num) . ' ' . $format;
         }
-        if ($num >= 1024 && $num < pow(1024, 2)) {
+        if ($num >= $unit && $num < pow($unit, 2)) {
             $p = 1;
             $format = 'Kbps';
         }
-        if ($num >= pow(1024, 2) && $num < pow(1024, 3)) {
+        if ($num >= pow($unit, 2) && $num < pow($unit, 3)) {
             $p = 2;
             $format = 'Mbps';
         }
-        if ($num >= pow(1024, 3) && $num < pow(1024, 4)) {
+        if ($num >= pow($unit, 3) && $num < pow($unit, 4)) {
             $p = 3;
             $format = 'Gbps';
         }
-        if ($num >= pow(1024, 4) && $num < pow(1024, 5)) {
+        if ($num >= pow($unit, 4) && $num < pow($unit, 5)) {
             $p = 3;
             $format = 'Tbps';
         }
-        $num /= pow(1024, $p);
+        $num /= pow($unit, $p);
         return number_format($num, 2) . $format;
     }
 

@@ -5,6 +5,8 @@ namespace app\admin\controller;
 use app\common\controller\Backend;
 use fast\Date;
 use think\Config;
+use think\db\exception\BindParamException;
+use think\exception\PDOException;
 
 /**
  * 控制台
@@ -29,32 +31,26 @@ class Dashboard2 extends Backend
      */
     public function index()
     {
-        $in = ['online', 'wait_handshake'];
         if ($this->auth->isSuperAdmin()) {
-            $st = date('Y-m-01', $this->model->up_time_stamp());
-            $et = date('Y-m-t', $this->model->up_time_stamp());
-            $r = $this->model->query('SELECT * FROM fa_traffic_network_counts WHERE `year_month` BETWEEN "' . $st . '" AND "' . $et . '"')[0];
+            $in = ['online', 'wait_handshake'];
+            $timestamp = $this->model->up_time_stamp();
+            $u_st = date('Y-m-01', $timestamp);
+            $u_et = date('Y-m-t', $timestamp);
+            $c_st = date('Y-m-01');
+            $c_et = date('Y-m-d');
             $this->view->assign([
                 'total_user' => model('Admin')->where(['status' => 'normal'])->count('id'),
-                'total_device' => $device->count('id'),
-                'total_device_online' => $device->where(['status_device' => ['in', $in]])->count('id'),
-                'total_device_review' => $device->where(['status_review' => ['neq', 'pass']])->count('id'),
-                'count' => $r,
-                'model' => $device,
+                'total_device' => $this->model->count('id'),
+                'total_device_online' => $this->model->where(['status_device' => ['in', $in]])->count('id'),
+                'total_device_review' => $this->model->where(['status_review' => ['neq', 'pass']])->count('id'),
+                'up_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $u_st . '", "' . $u_et . '")')[0][0],
+                'up_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $u_st . '", "' . $u_et . '")')[0][0],
+                'cur_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $c_st . '", "' . $c_et . '")')[0][0],
+                'cur_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $c_st . '", "' . $c_et . '")')[0][0],
+                'model' => $this->model,
             ]);
-        } else {
-            $r = $device->query('SELECT SUM(today_95) AS ts, SUM(month_95) AS mt, SUM(up_month_95) AS ut FROM fa_traffic_user_devices WHERE user_id = ' . $this->uid)[0];
-            $this->view->assign([
-                'total_user' => 1,
-                'total_device' => $device->where(['user_id' => $this->uid])->count('id'),
-                'total_device_online' => $device->where(['status_device' => ['in', $in], 'user_id' => $this->uid])->count('id'),
-                'total_device_review' => $device->where(['status_review' => ['neq', 'pass'], 'user_id' => $this->uid])->count('id'),
-                'count' => $r,
-                'model' => $device,
-            ]);
+            return $this->view->fetch();
         }
-
-        return $this->view->fetch();
     }
 
 }
