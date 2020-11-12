@@ -37,7 +37,7 @@ class Dashboard2 extends Backend
             $u_st = date('Y-m-01', $timestamp);
             $u_et = date('Y-m-t', $timestamp);
             $c_st = date('Y-m-01');
-            $c_et = date('Y-m-d');
+            $c_et = date('Y-m-d', time() - 86400);
             $this->view->assign([
                 'total_user' => model('Admin')->where(['status' => 'normal'])->count('id'),
                 'total_device' => $this->model->count('id'),
