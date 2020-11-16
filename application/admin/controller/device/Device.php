@@ -67,7 +67,6 @@ class Device extends Backend
                 $data = TrafficUserDevice::GetIpAddress($params['ip']);
                 $params['ip_address'] = $data['addr'];
                 $params['isp'] = $data['isp'];
-                $params['disk_uuid'] = '';
                 $params['status_review'] = 'waiting';
                 $params['status_device'] = 'wait_handshake';
                 $params['up_month_average'] = 0;
