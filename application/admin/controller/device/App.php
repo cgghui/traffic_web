@@ -76,15 +76,9 @@ class App extends Backend
                     $params['user_id'] = $this->uid;
                 }
                 $t = date('Y-m-d H:i:s');
-                $data = TrafficUserDevice::GetIpAddress($params['ip']);
-                $params['ip_address'] = $data['addr'];
-                $params['isp'] = $data['isp'];
-                $params['disk_uuid'] = '';
-                $params['status_review'] = 'waiting';
-                $params['status_device'] = 'wait_handshake';
                 $params['created_at'] = $t;
                 $params['updated_at'] = $t;
-                model('TrafficUserDevice')->save($params);
+                model('TrafficUserApp')->save($params);
                 $this->success();
             }
             $this->error();

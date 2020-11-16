@@ -70,6 +70,7 @@ class Device extends Backend
                 $params['disk_uuid'] = '';
                 $params['status_review'] = 'waiting';
                 $params['status_device'] = 'wait_handshake';
+                $params['up_month_average'] = 0;
                 $params['created_at'] = $t;
                 $params['updated_at'] = $t;
                 model('TrafficUserDevice')->save($params);
