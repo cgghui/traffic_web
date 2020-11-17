@@ -375,16 +375,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                         var msg = o.find('#ssh_check_msg');
                         $.get('device/device/connect_ssh?id=' + btn.attr("device_id"), function (resp) {
                             if (resp.code === 1) {
-                                msg.html('<div style="color:green">SSH连接成功</div>');
+                                msg.html('<div style="color:green">SSH: 连接成功</div>');
                             } else {
-                                msg.html('<div style="color:red">SSH' + resp.msg + '</div>');
+                                msg.html('<div style="color:red">SSH: ' + resp.msg + '</div>');
                             }
                             $.get('device/device/is_online?uuid=' + btn.attr("device_disk_uuid"), function (resp) {
                                 btn.removeAttr("disabled")
                                 if (resp.code === 1) {
-                                    msg.html(msg.html() + '<div style="color:green">设备在线</div>');
+                                    msg.html(msg.html() + '<div style="color:green">设备: 在线</div>');
                                 } else {
-                                    msg.html(msg.html() + '<div style="color:red">设备离线</div>');
+                                    msg.html(msg.html() + '<div style="color:red">设备: 离线</div>');
                                 }
                             }, 'json')
                         }, 'json')
