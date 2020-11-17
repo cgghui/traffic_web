@@ -239,13 +239,6 @@ class Device extends Backend
         if ($result['msg'] != 'successful') {
             $this->error($result['msg']);
         }
-        if ($result['uuid'] == $row['disk_uuid']) {
-            $this->success();
-        }
-        $has = $this->model->where(['disk_uuid' => $result['uuid']])->find();
-        if (!$has) {
-            $this->model->where(['id' => $row['id']])->update(['disk_uuid' => $result['uuid']]);
-        }
         $this->success();
     }
 
