@@ -398,6 +398,11 @@ class Device extends Backend
         echo json_encode($result);
     }
 
+    public function get_device_pack_log($dev, $date, $time)
+    {
+        echo json_encode($this->model->ServiceDeviceLog($dev, $date, $time));
+    }
+
     /**
      * 获取流量数据
      * @param $uuid

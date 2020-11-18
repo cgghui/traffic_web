@@ -122,22 +122,54 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
             layer.open({
                 type: 1,
                 title: false,
-                content: `<table class="table"><thead><tr><th>记数</th><th>上行速度</th><th>下行速度</th><th>时间</th></tr></thead><tbody id="data_box_2"></tbody></table>`,
+                content: `<table class="table"><thead><tr><th>记数</th><th>上行速度</th><th>下行速度</th><th>时间</th><th>日志</th></tr></thead><tbody id="data_box_2"></tbody></table>`,
                 area: ['90%', '90%'],
                 success: function (o, i) {
                     $.get('device/device/get_device_dot_log?uuid=' + tr.attr('uuid') + '&date=' + tr.attr("date"), function (resp) {
-                        $("#data_box_2").html(`<tr><td colspan="3" style="color: red;text-align: center">暂无数据</td></tr>`);
+                        $("#data_box_2").html(`<tr><td colspan="5" style="color: red;text-align: center">暂无数据</td></tr>`);
                         var i = 0, log;
                         for (; i < resp.length; i++) {
                             log = resp[i];
                             if (!log.log_upload_time) {
                                 log.log_upload_time = '补点';
                             }
-                            $(`<tr><td>${i + 1}</td><td>${change(log.count_y_u)}</td><td>${change(log.count_y_d)}</td><td>${log.log_upload_time}</td></tr>`).insertAfter("#data_box_2 tr:last");
+                            const tm = log.log_upload_time.split(" ")[1].split(":");
+                            $(`<tr><td>${i + 1}</td><td>${change(log.count_y_u)}</td><td>${change(log.count_y_d)}</td><td>${log.log_upload_time}</td><td><a href="javascript:" class="show_log">查看</a></td></tr>`)
+                                .attr("query", "dev="+tr.attr('uuid') + "&date=" + tr.attr('date') + "&time=" + tm[0] + ":" + tm[1])
+                                .insertAfter("#data_box_2 tr:last");
                         }
                         if (resp.length > 0) {
                             $("#data_box_2 tr:first").remove();
                         }
+                        $(".show_log").on("click", function () {
+                            const tr = $(this).parents("tr");
+                            const ix = layer.open({
+                                type: 1,
+                                title: false,
+                                content: `<table class="table"><thead><tr><th>记数</th><th>本机地址</th><th>目标地址</th><th>计入速率</th><th>未计速率</th></tr></thead><tbody id="data_box_3"></tbody></table>`,
+                                area: ['90%', '90%'],
+                                success: function (o, i) {
+                                    $.get('device/device/get_device_pack_log?' + tr.attr("query"), function (resp) {
+                                        $("#data_box_3").html(`<tr><td colspan="5" style="color: red;text-align: center">暂无数据</td></tr>`);
+                                        if (!resp) {
+                                            const x2 = layer.alert("无数据加载！", function () {
+                                                layer.close(x2);
+                                                layer.close(ix);
+                                            });
+                                            return;
+                                        }
+                                        var i = 0, log;
+                                        for (; i < resp.data.length; i++) {
+                                            log = resp.data[i].split(" ");
+                                            $(`<tr><td>${i + 1}</td><td>${log[1]}</td><td>${log[0]}</td><td>${change(log[2])}</td><td>${change(log[3])}</td></tr>`).insertAfter("#data_box_3 tr:last");
+                                        }
+                                        if (resp.data.length > 0) {
+                                            $("#data_box_3 tr:first").remove();
+                                        }
+                                    }, 'json')
+                                }
+                            });
+                        })
                     }, 'json')
                 }
             })

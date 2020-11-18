@@ -133,11 +133,27 @@ class TrafficUserDevice extends Model
         return $ret;
     }
 
-    public static function up_time_stamp() {
+    // ServiceDeviceLog 网速日志
+    public static function ServiceDeviceLog($uuid, $date, $time)
+    {
+        $resp = http::get(static::$service_api_url . '/get_client_logs?dev=' . $uuid . '&date=' . $date . '&form=upload&time=' . $time);
+        $resp = json_decode($resp, true);
+        if (!$resp['status']) {
+            return false;
+        }
+        $resp = $resp['data'];
+        foreach ($resp as $k => $data) {
+            return $data;
+        }
+    }
+
+    public static function up_time_stamp()
+    {
         return strtotime('-1 month');
     }
 
-    public static function month_day($time) {
+    public static function month_day($time)
+    {
         return date('Y-m-t', $time);
     }
 }
