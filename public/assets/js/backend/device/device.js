@@ -146,7 +146,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                             const ix = layer.open({
                                 type: 1,
                                 title: false,
-                                content: `<table class="table"><thead><tr><th>记数</th><th>本机地址</th><th>目标地址</th><th>计入速率</th><th>未计速率</th></tr></thead><tbody id="data_box_3"></tbody></table>`,
+                                content: `<table class="table"><thead><tr><th>记数</th><th>本机地址</th><th>目标地址</th><th>计入速率</th><th>未计速率</th></tr></thead><tbody id="data_box_3" style="font-size: 90%;"></tbody></table>`,
                                 area: ['90%', '90%'],
                                 success: function (o, i) {
                                     $.get('device/device/get_device_pack_log?' + tr.attr("query"), function (resp) {
