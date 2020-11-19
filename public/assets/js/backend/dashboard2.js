@@ -31,12 +31,13 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                 showColumnsSearch: false,
                 columns: [
                     [
+                        {field: 'id', title: 'id', sortable: true},
                         {
                             field: '', title: '运营商', operate: false, formatter: function (val) {
                                 return '电信&联通';
                             }
                         },
-                        {field: 'id', title: 'id', sortable: true},
+                        {field: 'source', title: '源', sortable: true},
                         {field: 'log_upload_time', title: '日期时间', sortable: true, operate: 'LIKE'},
                         {
                             field: 'count_y_u',
@@ -60,12 +61,14 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                 showColumnsSearch: false,
                 columns: [
                     [
+
+                        {field: 'id', title: 'id', sortable: true},
                         {
                             field: '', title: '运营商', operate: false, formatter: function (val) {
                                 return '移动';
                             }
                         },
-                        {field: 'id', title: 'id', sortable: true},
+                        {field: 'source', title: '源', sortable: true},
                         {field: 'log_upload_time', title: '日期时间', sortable: true, operate: 'LIKE'},
                         {
                             field: 'count_y_u',
