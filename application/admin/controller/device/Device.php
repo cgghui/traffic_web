@@ -477,9 +477,14 @@ class Device extends Backend
         $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_logs` WHERE device_disk_uuid = "' . $uuid . '" AND log_date = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
         if ($rows) {
             $row = $rows[0];
-            $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
-            $rets['ret']['posi']['date'] = $t[0] . ":" . $t[1];
-            $rets['ret']['posi']['speed'] = $row['count_y_u'];
+            if ($row['log_upload_time']) {
+                $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
+                $rets['ret']['posi']['date'] = $t[0] . ":" . $t[1];
+                $rets['ret']['posi']['speed'] = $row['count_y_u'];
+            } else {
+                $rets['ret']['posi']['date'] = ":";
+                $rets['ret']['posi']['speed'] = 0;
+            }
         }
         echo json_encode($rets);
     }
