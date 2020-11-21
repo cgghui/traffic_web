@@ -11,7 +11,7 @@ use think\Db;
  * 设备管理
  *
  */
-class Device extends Backend
+class Chart extends Backend
 {
 
     protected $model = null;
@@ -356,132 +356,6 @@ class Device extends Backend
         $this->view->assign('row', $row->toArray());
         $this->view->assign('user', model('Admin')->get(['id' => $row['user_id']])->toArray());
         return $this->view->fetch();
-    }
-
-    public function chart_info($ids)
-    {
-        if ($this->auth->isSuperAdmin()) {
-            $row = $this->model->get(['id' => $ids]);
-        } else {
-            $row = $this->model->get(['id' => $ids, 'user_id' => $this->uid]);
-        }
-        if (!$row) {
-            $this->error(__('No Results were found'));
-        }
-        $row['rejected_reason'] = '';
-        if ($row['status_review'] == 'rejected') {
-            $data = $this->model_log->where(['device_id' => $row['id'], 'status' => 'rejected'])->order('report_datetime DESC')->find();
-            if ($data) {
-                $row['rejected_reason'] = $data['message'];
-            }
-        }
-        $row['status_note'] = '';
-        if ($row['status_device'] == 'abnormal' || $row['status_device'] == 'lock') {
-            $in = ['abnormal', 'lock', 'collect_fail'];
-            $data = $this->model_log->where(['device_id' => $row['id'], 'status' => ['in', $in]])->order('report_datetime DESC')->find();
-            if ($data) {
-                $row['status_note'] = $data['message'];
-            }
-        }
-        $this->view->assign('row', $row->toArray());
-        $this->view->assign('user', model('Admin')->get(['id' => $row['user_id']])->toArray());
-        return $this->view->fetch();
-    }
-
-    public function get_chart_speed_data($uuid, $isp, $st, $et)
-    {
-        $isp = trim($isp);
-        if (in_array($isp, ['dx', 'lt', 'yd']) != true) {
-            return '{"status": false, "code": 100, "msg": "运营商只能为：dx、lt、yd"}';
-        }
-        $where['disk_uuid'] = ['EQ', $uuid];
-        $where['deleted_at'] = ['EXP', Db::raw('IS NULL')];
-        if ($this->auth->isSuperAdmin() == false) {
-            $where['user_id'] = ['EQ', $this->uid];
-        }
-        $dev = $this->model->where($where)->find();
-        if (!$dev) {
-            return '{"status": false, "code": 101, "msg": "设备不存在或无权访问"}';
-        }
-        if ($st == '' || $et == '') {
-            $st = date('Y-m') . '-01';
-            $et = date('Y-m-d');
-        } else {
-            $st = strtotime($st);
-            $et = strtotime($et);
-            if ($st == 0 || $et == 0) {
-                return '{"status": false, "code": 102, "msg": "时间格式不正确"}';
-            }
-            if ($st > $et) {
-                return '{"status": false, "code": 103, "msg": "开始时间不可大于结束时间"}';
-            }
-            $st = date("Y-m-d", $st);
-            $et = date("Y-m-d", $et);
-        }
-        $tn = 'fa_traffic_network_counts_95_';
-        if ($isp == 'dx' || $isp == 'lt') {
-            $tn .= 'dxlt';
-        } else {
-            $tn .= 'yd';
-        }
-        $rows = $this->model->query('SELECT `year_month`,speed_byte FROM `' . $tn . '` WHERE device_disk_uuid = "' . $uuid . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '"');
-        if (!$rows) {
-            return '{"status": false, "code": 102, "msg": "无数据列表"}';
-        }
-        $rets = ['status' => true, 'code' => 0];
-        foreach ($rows as $k => $row) {
-            $rets['ret']['xAxis'][] = explode("-", $row['year_month'], 2)[1];
-            $rets['ret']['data'][0][] = $row['speed_byte'];
-            $cnt = $this->model->query('SELECT count_y_u AS cnt FROM `fa_traffic_network_logs` WHERE device_disk_uuid = "' . $uuid . '" AND `log_date` = "' . $row['year_month'] . '" ORDER BY count_y_u DESC LIMIT 1');
-            if ($cnt) {
-                $rets['ret']['data'][1][] = (int)$cnt[0]['cnt'];
-            } else {
-                $rets['ret']['data'][1][] = 0;
-            }
-
-        }
-
-        echo json_encode($rets);
-    }
-
-    public function get_chart_speed_date_detail($uuid, $st)
-    {
-        $where['disk_uuid'] = ['EQ', $uuid];
-        $where['deleted_at'] = ['EXP', Db::raw('IS NULL')];
-        if ($this->auth->isSuperAdmin() == false) {
-            $where['user_id'] = ['EQ', $this->uid];
-        }
-        $dev = $this->model->where($where)->find();
-        if (!$dev) {
-            return '{"status": false, "code": 101, "msg": "设备不存在或无权访问"}';
-        }
-        if ($st == '') {
-            $st = date('Y-m-d');
-        } else {
-            $st = strtotime(date("y") . "-" . $st);
-            if ($st == 0) {
-                return '{"status": false, "code": 102, "msg": "时间格式不正确"}';
-            }
-            $st = date("Y-m-d", $st);
-        }
-        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_logs` WHERE device_disk_uuid = "' . $uuid . '" AND log_date = "' . $st . '" ORDER BY log_upload_time ASC');
-        if (!$rows) {
-            return '{"status": false, "code": 102, "msg": "无数据列表"}';
-        }
-        $rets = ['status' => true, 'code' => 0];
-        foreach ($rows as $k => $row) {
-            $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
-            $rets['ret']['xAxis'][] = $t[0] . ":" . $t[1];
-            $rets['ret']['data'][] = $row['count_y_u'];
-        }
-        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_logs` WHERE device_disk_uuid = "' . $uuid . '" AND log_date = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
-        if ($rows) {
-            $row = $rows[0];
-            $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
-            $rets['ret']['posi']['date'] = $t[0] . ":" . $t[1];
-            $rets['ret']['posi']['speed'] = $row['count_y_u'];
-        }
-        echo json_encode($rets);
     }
 
     /**

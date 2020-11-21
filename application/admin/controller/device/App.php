@@ -56,7 +56,7 @@ class App extends Backend
     }
 
     public function get_online_device($ids) {
-        print_r(model('TrafficUserDevice')->ServiceGetOnlineDevice(explode(',', $ids)));
+        //print_r(model('TrafficUserDevice')->ServiceGetOnlineDevice(explode(',', $ids)));
     }
 
     /**

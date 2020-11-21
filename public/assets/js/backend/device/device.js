@@ -1,4 +1,4 @@
-define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($, undefined, Backend, Table, Form) {
+define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', 'form', 'layer', 'bootstrap-datetimepicker'], function ($, undefined, Backend, Table, Echarts, Form) {
 
     function EditOrAddPublic() {
         $('input[name="row[ssh_connect_method]"]').on("change", function () {
@@ -135,7 +135,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                             }
                             const tm = log.log_upload_time.split(" ")[1].split(":");
                             $(`<tr><td>${i + 1}</td><td>${change(log.count_y_u)}</td><td>${change(log.count_y_d)}</td><td>${log.log_upload_time}</td><td><a href="javascript:" class="show_log">查看</a></td></tr>`)
-                                .attr("query", "dev="+tr.attr('uuid') + "&date=" + tr.attr('date') + "&time=" + tm[0] + ":" + tm[1])
+                                .attr("query", "dev=" + tr.attr('uuid') + "&date=" + tr.attr('date') + "&time=" + tm[0] + ":" + tm[1])
                                 .insertAfter("#data_box_2 tr:last");
                         }
                         if (resp.length > 0) {
@@ -208,11 +208,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
         }, 'json');
     }
 
-    /**
-     * 获取上一个月
-     *
-     * @date 格式为yyyy-mm-dd的日期，如：2014-01
-     */
+    // 获取上一个月
     function getPreMonth(date) {
         const arr = date.split('-');
         const year = arr[0]; //获取当前日期的年份
@@ -230,11 +226,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
         return year2 + '-' + month2;
     }
 
-    /**
-     * 获取下一个月
-     *
-     * @date 格式为yyyy-mm-dd的日期，如：2014-01
-     */
+    // 获取下一个月
     function getNextMonth(date) {
         const arr = date.split('-');
         const year = arr[0];
@@ -249,6 +241,33 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
             month2 = '0' + month2;
         }
         return year2 + '-' + month2;
+    }
+
+
+    function LoadDataByChart(uuid, isp, st, et, chart) {
+        chart.showLoading();
+        $.get("device/device/get_chart_speed_data?uuid=" + uuid + "&isp=" + isp + "&st=" + st + "&et=" + et, function (resp) {
+            chart.hideLoading();
+            if (!resp.status) {
+                layer.alert("加载数据失败！");
+                return;
+            }
+            chart.setOption({
+                xAxis: {
+                    data: resp.ret.xAxis
+                },
+                series: [
+                    {
+                        name: '最高网速',
+                        data: resp.ret.data[1]
+                    },
+                    {
+                        name: '折点网速',
+                        data: resp.ret.data[0]
+                    }
+                ]
+            });
+        }, "json");
     }
 
     const Controller = {
@@ -348,14 +367,23 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                             field: 'operate',
                             title: '操作',
                             table: table,
-                            buttons: [{
-                                text: '',
-                                name: 'detail',
-                                icon: 'fa fa-list',
-                                classname: 'btn btn-info btn-xs btn-detail btn-dialog',
-                                extend: ' data-toggle="tooltip" title="详细"',
-                                url: 'device/device/detail'
-                            }],
+                            buttons: [
+                                {
+                                    text: '',
+                                    name: 'detail',
+                                    icon: 'fa fa-bar-chart',
+                                    classname: 'btn btn-info btn-xs btn-detail btn-dialog',
+                                    extend: ' data-toggle="tooltip" title="图表"',
+                                    url: 'device/device/chart_info'
+                                },
+                                {
+                                    text: '',
+                                    name: 'detail',
+                                    icon: 'fa fa-list',
+                                    classname: 'btn btn-info btn-xs btn-detail btn-dialog',
+                                    extend: ' data-toggle="tooltip" title="详细"',
+                                    url: 'device/device/detail'
+                                }],
                             events: Table.api.events.operate,
                             formatter: Table.api.formatter.operate
                         }
@@ -365,13 +393,16 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
 
             // 为表格绑定事件
             Table.api.bindevent(table);
+            table.on("load-success.bs.table", function (e, data) {
+                $(".search").hide();
+            });
             // function load_device_95(t, i, data) {
             //     if (typeof data[i] === "undefined") {
             //         return;
             //     }
             //     const now = new Date();
             //     const cur = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-            //     const dev = data[i];
+            //     tconst dev = data[i];
             //     if (dev["isp"] === '') {
             //         load_device_95(t, i + 1, data);
             //         return;
@@ -471,6 +502,287 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                 ele.attr("cur_date", cur.getFullYear() + "-" + month);
                 loadData(ele);
             });
+        },
+        chart_info: function () {
+            const options = {
+                format: 'YYYY-MM-DD',
+                icons: {
+                    time: 'fa fa-clock-o',
+                    date: 'fa fa-calendar',
+                    up: 'fa fa-chevron-up',
+                    down: 'fa fa-chevron-down',
+                    previous: 'fa fa-chevron-left',
+                    next: 'fa fa-chevron-right',
+                    today: 'fa fa-history',
+                    clear: 'fa fa-trash',
+                    close: 'fa fa-remove'
+                },
+                showTodayButton: true,
+                showClose: true
+            };
+            $('.datetime_picker').datetimepicker(options);
+            // 基于准备好的dom，初始化echarts实例
+            let chart = Echarts.init(document.getElementById('EChart'));
+            chart.setOption({
+                title: {text: '', subtext: ''},
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        animation: false,
+                        label: {
+                            backgroundColor: '#ccc',
+                            borderColor: '#aaa',
+                            borderWidth: 1,
+                            shadowBlur: 0,
+                            shadowOffsetX: 0,
+                            shadowOffsetY: 0,
+                            color: '#222',
+                            formatter: function (obj) {
+                                if (obj.axisDimension === "y") {
+                                    return (obj.value * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gbps";
+                                }
+                                return obj.value;
+                            }
+                        }
+                    },
+                    formatter: function (item) {
+                        return "<p>" + item[0].axisValue + "</p>" +
+                            "<p><i class='fa fa-genderless' style='color:" + item[0].color + "'></i> " + item[0].seriesName + " " + change(item[0].data) + "</p>" +
+                            "<p><i class='fa fa-genderless' style='color:" + item[1].color + "'></i> " + item[1].seriesName + " " + change(item[1].data) + "</p>";
+                    }
+                },
+                dataZoom: [{}, {
+                    type: 'inside'
+                }],
+                legend: {
+                    data: ["最高网速", "折点网速"],
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        magicType: {show: true, type: ['stack', 'tiled']},
+                        saveAsImage: {show: true}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: []
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: function (val) {
+                            return (val * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gbps";
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '最高网速',
+                        type: 'line',
+                        symbol: 'emptyCircle',
+                        symbolSize: 3.5,
+                        smooth: true,
+                        areaStyle: {
+                            normal: {
+                                color: "#d4716e4a"
+                            }
+                        },
+                        lineStyle: {
+                            normal: {
+                                width: 1.5,
+                            }
+                        },
+                        data: []
+                    },
+                    {
+                        name: '折点网速',
+                        type: 'line',
+                        symbol: 'emptyCircle',
+                        symbolSize: 3.5,
+                        smooth: true,
+                        areaStyle: {
+                            normal: {
+                                color: "#61525c4a"
+                            }
+                        },
+                        lineStyle: {
+                            normal: {width: 1.5}
+                        },
+                        markLine: {
+                            data: [
+                                {type: 'average', name: '平均值'}
+                            ],
+                            label: {
+                                formatter: function (obj) {
+                                    return change(obj.value);
+                                }
+                            }
+                        },
+                        markPoint: {
+                            data: [
+                                {type: 'max', name: '最大值'},
+                                {type: 'min', name: '最小值'}
+                            ],
+                            label: {
+                                formatter: function (obj) {
+                                    return change(obj.value);
+                                }
+                            },
+                        },
+                        data: []
+                    }
+                ]
+            });
+            let ispZh = {
+                "电信": "dx",
+                "移动": "yd",
+                "联通": "lt",
+            }[$("#isp").val()];
+            const uuid = $("#device_uuid").val();
+            LoadDataByChart(uuid, ispZh, $("#st").val(), $("#et").val(), chart);
+            $("#search_r").on("click", function () {
+                LoadDataByChart(uuid, ispZh, $("#st").val(), $("#et").val(), chart);
+            });
+            chart.on("click", function (obj) {
+                if (obj.name === "平均值") {
+                    return;
+                }
+                layer.open({
+                    type: 1,
+                    title: false,
+                    content: `<div id="EChart_day" class="btn-refresh" style="height:400px;width:100%;"></div>`,
+                    area: ['95%', '80%'],
+                    success: function (o, i) {
+                        let chart = Echarts.init(document.getElementById('EChart_day'));
+                        chart.setOption({
+                            title: {text: '', subtext: ''},
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                    type: 'cross',
+                                    animation: false,
+                                    label: {
+                                        backgroundColor: '#ccc',
+                                        borderColor: '#aaa',
+                                        borderWidth: 1,
+                                        shadowBlur: 0,
+                                        shadowOffsetX: 0,
+                                        shadowOffsetY: 0,
+                                        color: '#222',
+                                        formatter: function (obj) {
+                                            if (obj.axisDimension === "y") {
+                                                return (obj.value * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gbps";
+                                            }
+                                            return obj.value;
+                                        }
+                                    }
+                                },
+                                formatter: function (item) {
+                                    return item[0].axisValue + " " + change(item[0].data);
+                                }
+                            },
+                            dataZoom: [{}, {
+                                type: 'inside'
+                            }],
+                            toolbox: {
+                                show: false,
+                                feature: {
+                                    magicType: {show: true, type: ['stack', 'tiled']},
+                                    saveAsImage: {show: true}
+                                }
+                            },
+                            xAxis: {
+                                type: 'category',
+                                boundaryGap: false,
+                                data: []
+                            },
+                            yAxis: {
+                                type: 'value',
+                                axisLabel: {
+                                    formatter: function (val) {
+                                        return (val * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gbps";
+                                    }
+                                }
+                            },
+                            series: [
+                                {
+                                    type: 'line',
+                                    symbol: 'emptyCircle',
+                                    symbolSize: 3.5,
+                                    smooth: true,
+                                    areaStyle: {
+                                        normal: {
+                                            color: "#d4716e4a"
+                                        }
+                                    },
+                                    lineStyle: {
+                                        normal: {
+                                            width: 1.5,
+                                        }
+                                    },
+                                    markLine: {
+                                        data: [
+                                            {type: 'average', name: '平均值'}
+                                        ],
+                                        label: {
+                                            formatter: function (obj) {
+                                                return change(obj.value);
+                                            }
+                                        }
+                                    },
+                                    markPoint: {
+                                        data: [
+                                            {type: 'max', name: '最大值'},
+                                            {type: 'min', name: '最小值'}
+                                        ],
+                                        label: {
+                                            formatter: function (obj) {
+                                                return change(obj.value);
+                                            }
+                                        },
+                                    },
+                                    data: []
+                                }
+                            ]
+                        });
+                        chart.showLoading();
+                        $.get("device/device/get_chart_speed_date_detail?uuid=" + uuid + "&st=" + obj.name, function (resp) {
+                            chart.hideLoading();
+                            if (!resp.status) {
+                                layer.alert("加载数据失败！");
+                                return;
+                            }
+                            chart.setOption({
+                                xAxis: {
+                                    data: resp.ret.xAxis
+                                },
+                                series: [
+                                    {
+                                        data: resp.ret.data,
+                                        markPoint: {
+                                            data: [
+                                                {type: 'max', name: '最大值'},
+                                                {type: 'min', name: '最小值'},
+                                                {
+                                                    coord: [resp.ret.posi.date, resp.ret.posi.speed],
+                                                    label: {
+                                                        formatter: function (obj) {
+                                                            return "95点 " + change(obj.data.coord[1])
+                                                        }
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    }
+                                ]
+                            });
+                        }, "json");
+                    }
+                })
+            })
         },
         api: {
             bindevent: function () {
