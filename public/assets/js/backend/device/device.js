@@ -252,6 +252,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                 layer.alert("加载数据失败！");
                 return;
             }
+            $("#st").val(st);
+            $("#et").val(et);
             chart.setOption({
                 xAxis: {
                     data: resp.ret.xAxis
@@ -263,7 +265,21 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                     },
                     {
                         name: '折点网速',
-                        data: resp.ret.data[0]
+                        data: resp.ret.data[0],
+                        markPoint: {
+                            data: [
+                                {type: 'max', name: '最大值'},
+                                {type: 'min', name: '最小值'},
+                                {
+                                    coord: [resp.ret.posi.date, resp.ret.posi.speed],
+                                    label: {
+                                        formatter: function (obj) {
+                                            return "95点 " + change(obj.data.coord[1])
+                                        }
+                                    },
+                                },
+                            ],
+                        }
                     }
                 ]
             });
@@ -504,6 +520,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
             });
         },
         chart_info: function () {
+            const cur_date_s = $("#st").val();
+            const cur_date_e = $("#et").val();
             const options = {
                 format: 'YYYY-MM-DD',
                 icons: {
@@ -540,16 +558,21 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                             color: '#222',
                             formatter: function (obj) {
                                 if (obj.axisDimension === "y") {
-                                    return (obj.value * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gbps";
+                                    return (obj.value * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
                                 }
                                 return obj.value;
                             }
                         }
                     },
                     formatter: function (item) {
-                        return "<p>" + item[0].axisValue + "</p>" +
-                            "<p><i class='fa fa-genderless' style='color:" + item[0].color + "'></i> " + item[0].seriesName + " " + change(item[0].data) + "</p>" +
-                            "<p><i class='fa fa-genderless' style='color:" + item[1].color + "'></i> " + item[1].seriesName + " " + change(item[1].data) + "</p>";
+                        if (item[1]) {
+                            return "<p>" + item[0].axisValue + "</p>" +
+                                "<p><i class='fa fa-genderless' style='color:" + item[0].color + "'></i> " + item[0].seriesName + " " + change(item[0].data) + "</p>" +
+                                "<p><i class='fa fa-genderless' style='color:" + item[1].color + "'></i> " + item[1].seriesName + " " + change(item[1].data) + "</p>";
+                        } else {
+                            return "<p>" + item[0].axisValue + "</p>" +
+                                "<p><i class='fa fa-genderless' style='color:" + item[0].color + "'></i> " + item[0].seriesName + " " + change(item[0].data) + "</p>";
+                        }
                     }
                 },
                 dataZoom: [{}, {
@@ -574,7 +597,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                     type: 'value',
                     axisLabel: {
                         formatter: function (val) {
-                            return (val * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gbps";
+                            return (val * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
                         }
                     }
                 },
@@ -646,8 +669,33 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
             $("#search_r").on("click", function () {
                 LoadDataByChart(uuid, ispZh, $("#st").val(), $("#et").val(), chart);
             });
+            $("#search_up").on("click", function () {
+                let ss = $("#st").val().split("-"), st, et, day, sx;
+                st = getPreMonth(ss[0] + "-" + ss[1]) + "-01";
+                sx = st.split("-")
+                day = new Date(parseInt(sx[0]), parseInt(sx[1]), 0).getDate();
+                if (day <= 9) {
+                    day = "0" + day
+                }
+                et = getPreMonth(ss[0] + "-" + ss[1]) + "-" + day;
+                LoadDataByChart(uuid, ispZh, st, et, chart);
+            });
+            $("#search_cur").on("click", function () {
+                LoadDataByChart(uuid, ispZh, cur_date_s, cur_date_e, chart);
+            });
+            $("#search_next").on("click", function () {
+                let ss = $("#st").val().split("-"), st, et, day, sx;
+                st = getNextMonth(ss[0] + "-" + ss[1]) + "-01";
+                sx = st.split("-")
+                day = new Date(parseInt(sx[0]), parseInt(sx[1]), 0).getDate();
+                if (day <= 9) {
+                    day = "0" + day
+                }
+                et = getNextMonth(ss[0] + "-" + ss[1]) + "-" + day;
+                LoadDataByChart(uuid, ispZh, st, et, chart);
+            })
             chart.on("click", function (obj) {
-                if (obj.name === "平均值") {
+                if (obj.name === "平均值" || obj.name === "" || obj.name === "最大值" || obj.name === "最小值") {
                     return;
                 }
                 layer.open({
@@ -674,7 +722,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                                         color: '#222',
                                         formatter: function (obj) {
                                             if (obj.axisDimension === "y") {
-                                                return (obj.value * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gbps";
+                                                return (obj.value * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
                                             }
                                             return obj.value;
                                         }
@@ -703,7 +751,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                                 type: 'value',
                                 axisLabel: {
                                     formatter: function (val) {
-                                        return (val * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gbps";
+                                        return (val * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
                                     }
                                 }
                             },

@@ -405,7 +405,11 @@ class Device extends Backend
         }
         if ($st == '' || $et == '') {
             $st = date('Y-m') . '-01';
-            $et = date('Y-m-d');
+            if (date("d") == "01") {
+                $et = $st;
+            } else {
+                $et = date('Y-m-d', time() - 86400);
+            }
         } else {
             $st = strtotime($st);
             $et = strtotime($et);
@@ -438,9 +442,18 @@ class Device extends Backend
             } else {
                 $rets['ret']['data'][1][] = 0;
             }
-
         }
-
+        $rows = $this->model->query('CALL NETWORK_CDN_COUNT_95("' . $uuid . '", "' . $st . '", "' . $et . '")');
+        if ($rows) {
+            $row = $rows[0][0];
+            if ($row['total'] > 0) {
+                $rets['ret']['posi']['date'] = explode("-", $row['posi_date'], 2)[1];
+                $rets['ret']['posi']['speed'] = $row['traffic'];
+            } else {
+                $rets['ret']['posi']['date'] = "-";
+                $rets['ret']['posi']['speed'] = 0;
+            }
+        }
         echo json_encode($rets);
     }
 
