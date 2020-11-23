@@ -84,6 +84,9 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                 $(".search").hide();
             });
 
+            const cur_date_s = $("#st").val();
+            const cur_date_e = $("#et").val();
+
             EChartCur(Echarts, "", "").on("click", function (obj) {
                 if (obj.name === "平均值" || obj.name === "" || obj.name === "最大值" || obj.name === "最小值") {
                     return;
@@ -434,6 +437,35 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                     }
                 })
             })
+
+            $("#search_up").on("click", function () {
+                let ss = $("#st").val().split("-"), st, et, day, sx;
+                st = getPreMonth(ss[0] + "-" + ss[1]) + "-01";
+                sx = st.split("-")
+                day = new Date(parseInt(sx[0]), parseInt(sx[1]), 0).getDate();
+                if (day <= 9) {
+                    day = "0" + day
+                }
+                et = getPreMonth(ss[0] + "-" + ss[1]) + "-" + day;
+                EChartCur(Echarts, st, et);
+                EChartSys(Echarts, st, et);
+            });
+            $("#search_cur").on("click", function () {
+                EChartCur(Echarts, cur_date_s, cur_date_e);
+                EChartSys(Echarts, cur_date_s, cur_date_e);
+            });
+            $("#search_next").on("click", function () {
+                let ss = $("#st").val().split("-"), st, et, day, sx;
+                st = getNextMonth(ss[0] + "-" + ss[1]) + "-01";
+                sx = st.split("-")
+                day = new Date(parseInt(sx[0]), parseInt(sx[1]), 0).getDate();
+                if (day <= 9) {
+                    day = "0" + day
+                }
+                et = getNextMonth(ss[0] + "-" + ss[1]) + "-" + day;
+                EChartCur(Echarts, st, et);
+                EChartSys(Echarts, st, et);
+            })
         }
     };
 
@@ -444,6 +476,41 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
         sizes = ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
         i = Math.floor(Math.log(bytes) / Math.log(k));
         return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i] + (typeof (add) !== "undefined" ? add : "ps");
+    }
+
+    // 获取上一个月
+    function getPreMonth(date) {
+        const arr = date.split('-');
+        const year = arr[0]; //获取当前日期的年份
+        const month = arr[1]; //获取当前日期的月份
+        let days = new Date(year, month, 0);
+        let year2 = year;
+        let month2 = parseInt(month) - 1;
+        if (month2 === 0) {
+            year2 = parseInt(year2) - 1;
+            month2 = 12;
+        }
+        if (month2 < 10) {
+            month2 = '0' + month2;
+        }
+        return year2 + '-' + month2;
+    }
+
+    // 获取下一个月
+    function getNextMonth(date) {
+        const arr = date.split('-');
+        const year = arr[0];
+        const month = arr[1];
+        let year2 = year;
+        let month2 = parseInt(month) + 1;
+        if (month2 === 13) {
+            year2 = parseInt(year2) + 1;
+            month2 = 1;
+        }
+        if (month2 < 10) {
+            month2 = '0' + month2;
+        }
+        return year2 + '-' + month2;
     }
 
     function EChartCur(chart_obj, st, et) {
