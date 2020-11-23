@@ -428,7 +428,7 @@ class Device extends Backend
         } else {
             $tn .= 'yd';
         }
-        $rows = $this->model->query('SELECT `year_month`,speed_byte FROM `' . $tn . '` WHERE device_disk_uuid = "' . $uuid . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '"');
+        $rows = $this->model->query('SELECT `year_month`,speed_byte FROM `' . $tn . '` WHERE device_disk_uuid = "' . $uuid . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" ORDER BY `year_month` ASC');
         if (!$rows) {
             return '{"status": false, "code": 102, "msg": "无数据列表"}';
         }
@@ -477,7 +477,7 @@ class Device extends Backend
             }
             $st = date("Y-m-d", $st);
         }
-        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_logs` WHERE device_disk_uuid = "' . $uuid . '" AND log_date = "' . $st . '" ORDER BY log_upload_time ASC');
+        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_logs` WHERE device_disk_uuid = "' . $uuid . '" AND log_date = "' . $st . '" AND log_upload_time IS NOT NULL ORDER BY log_upload_time ASC');
         if (!$rows) {
             return '{"status": false, "code": 102, "msg": "无数据列表"}';
         }
