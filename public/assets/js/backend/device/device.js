@@ -39,7 +39,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
         let k = 1000, i, sizes;
         sizes = ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
         i = Math.floor(Math.log(bytes) / Math.log(k));
-        return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i] + (typeof(add) !== undefined ? add : "ps");
+        return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i] + (typeof(add) !== "undefined" ? add : "ps");
     }
 
     function loadData(ele) {
