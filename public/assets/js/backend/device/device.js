@@ -33,13 +33,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
         'lock': '<span style="color: red">锁定</span>',
     };
 
-    function change(bytes) {
+    function change(bytes, add) {
         bytes = bytes * 8;
         if (bytes === 0) return '0 bps';
         let k = 1000, i, sizes;
-        sizes = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps', 'Ebps', 'Zbps', 'Ybps'];
+        sizes = ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
         i = Math.floor(Math.log(bytes) / Math.log(k));
-        return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+        return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i] + (typeof(add) !== undefined ? add : "ps");
     }
 
     function loadData(ele) {
@@ -274,7 +274,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                                     coord: [resp.ret.posi.date, resp.ret.posi.speed],
                                     label: {
                                         formatter: function (obj) {
-                                            return "95点 " + change(obj.data.coord[1])
+                                            return "95点 " + change(obj.data.coord[1], "")
                                         }
                                     },
                                 },
@@ -567,11 +567,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                     formatter: function (item) {
                         if (item[1]) {
                             return "<p>" + item[0].axisValue + "</p>" +
-                                "<p><i class='fa fa-genderless' style='color:" + item[0].color + "'></i> " + item[0].seriesName + " " + change(item[0].data) + "</p>" +
-                                "<p><i class='fa fa-genderless' style='color:" + item[1].color + "'></i> " + item[1].seriesName + " " + change(item[1].data) + "</p>";
+                                "<p><i class='fa fa-genderless' style='color:" + item[0].color + "'></i> " + item[0].seriesName + " " + change(item[0].data, "") + "</p>" +
+                                "<p><i class='fa fa-genderless' style='color:" + item[1].color + "'></i> " + item[1].seriesName + " " + change(item[1].data, "") + "</p>";
                         } else {
                             return "<p>" + item[0].axisValue + "</p>" +
-                                "<p><i class='fa fa-genderless' style='color:" + item[0].color + "'></i> " + item[0].seriesName + " " + change(item[0].data) + "</p>";
+                                "<p><i class='fa fa-genderless' style='color:" + item[0].color + "'></i> " + item[0].seriesName + " " + change(item[0].data, "") + "</p>";
                         }
                     }
                 },
@@ -640,7 +640,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                             ],
                             label: {
                                 formatter: function (obj) {
-                                    return change(obj.value);
+                                    return change(obj.value, "");
                                 }
                             }
                         },
@@ -651,7 +651,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                             ],
                             label: {
                                 formatter: function (obj) {
-                                    return change(obj.value);
+                                    return change(obj.value, "");
                                 }
                             },
                         },
@@ -729,7 +729,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                                     }
                                 },
                                 formatter: function (item) {
-                                    return item[0].axisValue + " " + change(item[0].data);
+                                    return item[0].axisValue + " " + change(item[0].data, "");
                                 }
                             },
                             dataZoom: [{}, {
@@ -777,7 +777,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                                         ],
                                         label: {
                                             formatter: function (obj) {
-                                                return change(obj.value);
+                                                return change(obj.value, "");
                                             }
                                         }
                                     },
@@ -788,7 +788,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                                         ],
                                         label: {
                                             formatter: function (obj) {
-                                                return change(obj.value);
+                                                return change(obj.value, "");
                                             }
                                         },
                                     },
@@ -818,7 +818,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                                                     coord: [resp.ret.posi.date, resp.ret.posi.speed],
                                                     label: {
                                                         formatter: function (obj) {
-                                                            return "95点 " + change(obj.data.coord[1])
+                                                            return "95点 " + change(obj.data.coord[1], "")
                                                         }
                                                     },
                                                 },
