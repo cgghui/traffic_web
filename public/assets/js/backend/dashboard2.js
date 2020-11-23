@@ -449,7 +449,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
     function EChartCur(chart_obj, st, et) {
         let EChartCur = chart_obj.init(document.getElementById('EChartCur'), "walden");
         EChartCur.setOption({
-            title: {text: '', subtext: ''},
+            title: {text: '汇总拆线图【爱奇艺】', subtext: ''},
             tooltip: {
                 trigger: 'axis',
                 axisPointer: {
@@ -610,7 +610,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
     function EChartSys(chart_obj, st, et) {
         let EChartSys = Echarts.init(document.getElementById('EChartSys'), "walden");
         EChartSys.setOption({
-            title: {text: '', subtext: ''},
+            title: {text: '汇总拆线图【系统】', subtext: ''},
             tooltip: {
                 trigger: 'axis',
                 axisPointer: {
@@ -745,9 +745,8 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
         });
         EChartSys.showLoading();
         $.get("Dashboard2/get_chart_speed_data?src=system_ware&st=" + st + "&et=" + et, function (resp) {
-            EChartCur.hideLoading();
+            EChartSys.hideLoading();
             if (!resp.status) {
-                $('#EChartSys').hide();
                 return;
             }
             EChartSys.setOption({
@@ -765,6 +764,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                 ]
             });
         }, "json");
+        return EChartSys;
     }
 
     return Controller;
