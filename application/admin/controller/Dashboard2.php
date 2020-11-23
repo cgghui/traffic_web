@@ -5,6 +5,7 @@ namespace app\admin\controller;
 use app\common\controller\Backend;
 use fast\Date;
 use think\Config;
+use think\Db;
 use think\db\exception\BindParamException;
 use think\exception\PDOException;
 
@@ -85,4 +86,72 @@ class Dashboard2 extends Backend
         }
     }
 
+    public function get_chart_speed_data($src, $st, $et)
+    {
+        if ($st == '' || $et == '') {
+            $st = date('Y-m') . '-01';
+            $et = date('Y-m-d', time() - 86400);
+        } else {
+            $st = strtotime($st);
+            $et = strtotime($et);
+            if ($st == 0 || $et == 0) {
+                return '{"status": false, "code": 102, "msg": "时间格式不正确"}';
+            }
+            if ($st > $et) {
+                return '{"status": false, "code": 103, "msg": "开始时间不可大于结束时间"}';
+            }
+            $st = date("Y-m-d", $st);
+            $et = date("Y-m-d", $et);
+        }
+        $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+        if (!$rows) {
+            return '{"status": false, "code": 102, "msg": "无数据列表"}';
+        }
+        $rets = ['status' => true, 'code' => 0];
+        foreach ($rows as $k => $row) {
+            $rets['ret']['xAxis'][] = explode('-', $row['year_month'], 2)[1];
+            $rets['ret']['data'][0][] = $row['speed'];
+        }
+        $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+        if (!$rows) {
+            return '{"status": false, "code": 102, "msg": "无数据列表"}';
+        }
+        foreach ($rows as $k => $row) {
+            $rets['ret']['data'][1][] = $row['speed'];
+        }
+        $rets['ret']['date'] = $st . ' ~ ' . $et;
+        echo json_encode($rets);
+    }
+
+    public function get_chart_speed_date_detail($src, $st)
+    {
+        if ($st == '') {
+            $st = date('Y-m');
+        } else {
+            $st = strtotime(date("Y") . "-" . $st);
+            if ($st == 0) {
+                return '{"status": false, "code": 102, "msg": "时间格式不正确"}';
+            }
+            $st = date("Y-m-d", $st);
+        }
+        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY log_upload_time ASC');
+        if (!$rows) {
+            return '{"status": false, "code": 102, "msg": "无数据列表"}';
+        }
+        $rets = ['status' => true, 'code' => 0];
+        foreach ($rows as $k => $row) {
+            $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
+            $rets['ret']['xAxis'][] = $t[0] . ":" . $t[1];
+            $rets['ret']['data'][0][] = $row['count_y_u'];
+        }
+        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY log_upload_time ASC');
+        if (!$rows) {
+            return '{"status": false, "code": 102, "msg": "无数据列表"}';
+        }
+        foreach ($rows as $k => $row) {
+            $rets['ret']['data'][1][] = $row['count_y_u'];
+        }
+        $rets['ret']['date'] = $st;
+        echo json_encode($rets);
+    }
 }

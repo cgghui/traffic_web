@@ -1,13 +1,4 @@
-define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echarts-theme', 'template'], function ($, undefined, Backend, Datatable, Table, Echarts, undefined, Template) {
-
-    function change(bytes) {
-        bytes = bytes * 8;
-        if (bytes === 0) return '0 bps';
-        let k = 1000, i, sizes;
-        sizes = ['bps', 'Kbps', 'Mbps', 'Gbps', 'Tbps', 'Pbps', 'Ebps', 'Zbps', 'Ybps'];
-        i = Math.floor(Math.log(bytes) / Math.log(k));
-        return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
-    }
+define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echarts-theme', 'echarts', 'echarts-theme', 'template'], function ($, undefined, Backend, Datatable, Table, Echarts, undefined, Template) {
 
     var Controller = {
         index: function () {
@@ -92,8 +83,689 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
             table2.on("load-success.bs.table", function (e, data) {
                 $(".search").hide();
             });
+
+            EChartCur(Echarts, "", "").on("click", function (obj) {
+                if (obj.name === "平均值" || obj.name === "" || obj.name === "最大值" || obj.name === "最小值") {
+                    return;
+                }
+                let isp = "yd";
+                if (obj.seriesName === "电信&联通") {
+                    isp = "dxlt";
+                }
+                layer.open({
+                    type: 1,
+                    title: false,
+                    content: `<div id="EChart_day" class="btn-refresh" style="height:400px;width:100%;padding:10px;"></div>`,
+                    area: ['80%', '50%'],
+                    success: function (o, i) {
+                        let chart = Echarts.init(document.getElementById('EChart_day'), "walden");
+                        chart.setOption({
+                            title: {text: '', subtext: ''},
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                    type: 'cross',
+                                    animation: false,
+                                    label: {
+                                        backgroundColor: '#ccc',
+                                        borderColor: '#aaa',
+                                        borderWidth: 1,
+                                        shadowBlur: 0,
+                                        shadowOffsetX: 0,
+                                        shadowOffsetY: 0,
+                                        color: '#222',
+                                        formatter: function (obj) {
+                                            if (obj.axisDimension === "y") {
+                                                return (obj.value * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
+                                            }
+                                            return obj.value;
+                                        }
+                                    }
+                                },
+                                formatter: function (item) {
+                                    return item[0].axisValue + " " + change(item[0].data, "");
+                                }
+                            },
+                            dataZoom: [{}, {
+                                type: 'inside'
+                            }],
+                            legend: {
+                                data: ["电信&联通", "移动"],
+                            },
+                            toolbox: {
+                                show: false,
+                                feature: {
+                                    magicType: {show: true, type: ['stack', 'tiled']},
+                                    saveAsImage: {show: true}
+                                }
+                            },
+                            xAxis: {
+                                type: 'category',
+                                boundaryGap: false,
+                                data: []
+                            },
+                            yAxis: {
+                                type: 'value',
+                                axisLabel: {
+                                    formatter: function (val) {
+                                        return (val * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
+                                    }
+                                }
+                            },
+                            series: [
+                                {
+                                    name: "电信&联通",
+                                    type: 'line',
+                                    symbol: 'emptyCircle',
+                                    symbolSize: 8,
+                                    smooth: true,
+                                    areaStyle: {
+                                        normal: {
+                                            color: "#78c8eb4a"
+                                        }
+                                    },
+                                    lineStyle: {
+                                        normal: {
+                                            width: 1.5,
+                                        }
+                                    },
+                                    markLine: {
+                                        data: [
+                                            {type: 'average', name: '平均值'}
+                                        ],
+                                        label: {
+                                            formatter: function (obj) {
+                                                return change(obj.value, "");
+                                            }
+                                        }
+                                    },
+                                    markPoint: {
+                                        data: [
+                                            {type: 'max', name: '最大值'},
+                                            {type: 'min', name: '最小值'}
+                                        ],
+                                        label: {
+                                            formatter: function (obj) {
+                                                return change(obj.value, "");
+                                            }
+                                        },
+                                    },
+                                    data: []
+                                },
+                                {
+                                    name: "移动",
+                                    type: 'line',
+                                    symbol: 'emptyCircle',
+                                    symbolSize: 8,
+                                    smooth: true,
+                                    areaStyle: {
+                                        normal: {
+                                            color: "#6fddce4a"
+                                        }
+                                    },
+                                    lineStyle: {
+                                        normal: {
+                                            width: 1.5,
+                                        }
+                                    },
+                                    markLine: {
+                                        data: [
+                                            {type: 'average', name: '平均值'}
+                                        ],
+                                        label: {
+                                            formatter: function (obj) {
+                                                return change(obj.value, "");
+                                            }
+                                        }
+                                    },
+                                    markPoint: {
+                                        data: [
+                                            {type: 'max', name: '最大值'},
+                                            {type: 'min', name: '最小值'}
+                                        ],
+                                        label: {
+                                            formatter: function (obj) {
+                                                return change(obj.value, "");
+                                            }
+                                        },
+                                    },
+                                    data: []
+                                }
+                            ]
+                        });
+                        chart.showLoading();
+                        $.get("Dashboard2/get_chart_speed_date_detail?src=iqiyi&st=" + obj.name, function (resp) {
+                            chart.hideLoading();
+                            if (!resp.status) {
+                                layer.alert("加载数据失败！");
+                                return;
+                            }
+                            chart.setOption({
+                                title: {text: '', subtext: resp.ret.date},
+                                xAxis: {
+                                    data: resp.ret.xAxis
+                                },
+                                series: [
+                                    {
+                                        data: resp.ret.data[0],
+                                    },
+
+                                    {
+                                        data: resp.ret.data[1],
+                                    }
+                                ]
+                            });
+                        }, "json");
+                    }
+                })
+            })
+            EChartSys(Echarts, "", "").on("click", function (obj) {
+                if (obj.name === "平均值" || obj.name === "" || obj.name === "最大值" || obj.name === "最小值") {
+                    return;
+                }
+                let isp = "yd";
+                if (obj.seriesName === "电信&联通") {
+                    isp = "dxlt";
+                }
+                layer.open({
+                    type: 1,
+                    title: false,
+                    content: `<div id="EChart_day" class="btn-refresh" style="height:400px;width:100%;padding:10px;"></div>`,
+                    area: ['80%', '50%'],
+                    success: function (o, i) {
+                        let chart = Echarts.init(document.getElementById('EChart_day'), "walden");
+                        chart.setOption({
+                            title: {text: '', subtext: ''},
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                    type: 'cross',
+                                    animation: false,
+                                    label: {
+                                        backgroundColor: '#ccc',
+                                        borderColor: '#aaa',
+                                        borderWidth: 1,
+                                        shadowBlur: 0,
+                                        shadowOffsetX: 0,
+                                        shadowOffsetY: 0,
+                                        color: '#222',
+                                        formatter: function (obj) {
+                                            if (obj.axisDimension === "y") {
+                                                return (obj.value * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
+                                            }
+                                            return obj.value;
+                                        }
+                                    }
+                                },
+                                formatter: function (item) {
+                                    return item[0].axisValue + " " + change(item[0].data, "");
+                                }
+                            },
+                            dataZoom: [{}, {
+                                type: 'inside'
+                            }],
+                            legend: {
+                                data: ["电信&联通", "移动"],
+                            },
+                            toolbox: {
+                                show: false,
+                                feature: {
+                                    magicType: {show: true, type: ['stack', 'tiled']},
+                                    saveAsImage: {show: true}
+                                }
+                            },
+                            xAxis: {
+                                type: 'category',
+                                boundaryGap: false,
+                                data: []
+                            },
+                            yAxis: {
+                                type: 'value',
+                                axisLabel: {
+                                    formatter: function (val) {
+                                        return (val * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
+                                    }
+                                }
+                            },
+                            series: [
+                                {
+                                    name: "电信&联通",
+                                    type: 'line',
+                                    symbol: 'emptyCircle',
+                                    symbolSize: 8,
+                                    smooth: true,
+                                    areaStyle: {
+                                        normal: {
+                                            color: "#78c8eb4a"
+                                        }
+                                    },
+                                    lineStyle: {
+                                        normal: {
+                                            width: 1.5,
+                                        }
+                                    },
+                                    markLine: {
+                                        data: [
+                                            {type: 'average', name: '平均值'}
+                                        ],
+                                        label: {
+                                            formatter: function (obj) {
+                                                return change(obj.value, "");
+                                            }
+                                        }
+                                    },
+                                    markPoint: {
+                                        data: [
+                                            {type: 'max', name: '最大值'},
+                                            {type: 'min', name: '最小值'}
+                                        ],
+                                        label: {
+                                            formatter: function (obj) {
+                                                return change(obj.value, "");
+                                            }
+                                        },
+                                    },
+                                    data: []
+                                },
+                                {
+                                    name: "移动",
+                                    type: 'line',
+                                    symbol: 'emptyCircle',
+                                    symbolSize: 8,
+                                    smooth: true,
+                                    areaStyle: {
+                                        normal: {
+                                            color: "#6fddce4a"
+                                        }
+                                    },
+                                    lineStyle: {
+                                        normal: {
+                                            width: 1.5,
+                                        }
+                                    },
+                                    markLine: {
+                                        data: [
+                                            {type: 'average', name: '平均值'}
+                                        ],
+                                        label: {
+                                            formatter: function (obj) {
+                                                return change(obj.value, "");
+                                            }
+                                        }
+                                    },
+                                    markPoint: {
+                                        data: [
+                                            {type: 'max', name: '最大值'},
+                                            {type: 'min', name: '最小值'}
+                                        ],
+                                        label: {
+                                            formatter: function (obj) {
+                                                return change(obj.value, "");
+                                            }
+                                        },
+                                    },
+                                    data: []
+                                }
+                            ]
+                        });
+                        chart.showLoading();
+                        $.get("Dashboard2/get_chart_speed_date_detail?src=system_ware&st=" + obj.name, function (resp) {
+                            chart.hideLoading();
+                            if (!resp.status) {
+                                layer.alert("加载数据失败！");
+                                return;
+                            }
+                            chart.setOption({
+                                title: {text: '', subtext: resp.ret.date},
+                                xAxis: {
+                                    data: resp.ret.xAxis
+                                },
+                                series: [
+                                    {
+                                        data: resp.ret.data[0],
+                                    },
+
+                                    {
+                                        data: resp.ret.data[1],
+                                    }
+                                ]
+                            });
+                        }, "json");
+                    }
+                })
+            })
         }
     };
+
+    function change(bytes, add) {
+        bytes = bytes * 8;
+        if (bytes === 0) return '0 bps';
+        let k = 1000, i, sizes;
+        sizes = ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
+        i = Math.floor(Math.log(bytes) / Math.log(k));
+        return (bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i] + (typeof (add) !== "undefined" ? add : "ps");
+    }
+
+    function EChartCur(chart_obj, st, et) {
+        let EChartCur = chart_obj.init(document.getElementById('EChartCur'), "walden");
+        EChartCur.setOption({
+            title: {text: '', subtext: ''},
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    animation: false,
+                    label: {
+                        backgroundColor: '#ccc',
+                        borderColor: '#aaa',
+                        borderWidth: 1,
+                        shadowBlur: 0,
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 0,
+                        color: '#222',
+                        formatter: function (obj) {
+                            if (obj.axisDimension === "y") {
+                                return (obj.value * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
+                            }
+                            return obj.value;
+                        }
+                    }
+                },
+                formatter: function (item) {
+                    return item[0].axisValue + " " + change(item[0].data, "");
+                }
+            },
+            dataZoom: [{}, {
+                type: 'inside'
+            }],
+            legend: {
+                data: ["电信&联通", "移动"],
+            },
+            toolbox: {
+                show: false,
+                feature: {
+                    magicType: {show: true, type: ['stack', 'tiled']},
+                    saveAsImage: {show: true}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: []
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: function (val) {
+                        return (val * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
+                    }
+                }
+            },
+            series: [
+                {
+                    name: "电信&联通",
+                    type: 'line',
+                    symbol: 'emptyCircle',
+                    symbolSize: 8,
+                    smooth: true,
+                    areaStyle: {
+                        normal: {
+                            color: "#78c8eb4a"
+                        }
+                    },
+                    lineStyle: {
+                        normal: {
+                            width: 1.5,
+                        }
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ],
+                        label: {
+                            formatter: function (obj) {
+                                return change(obj.value, "");
+                            }
+                        }
+                    },
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ],
+                        label: {
+                            formatter: function (obj) {
+                                return change(obj.value, "");
+                            }
+                        },
+                    },
+                    data: []
+                },
+                {
+                    name: "移动",
+                    type: 'line',
+                    symbol: 'emptyCircle',
+                    symbolSize: 8,
+                    smooth: true,
+                    areaStyle: {
+                        normal: {
+                            color: "#6fddce4a"
+                        }
+                    },
+                    lineStyle: {
+                        normal: {
+                            width: 1.5,
+                        }
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ],
+                        label: {
+                            formatter: function (obj) {
+                                return change(obj.value, "");
+                            }
+                        }
+                    },
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ],
+                        label: {
+                            formatter: function (obj) {
+                                return change(obj.value, "");
+                            }
+                        },
+                    },
+                    data: []
+                }
+            ]
+        });
+        EChartCur.showLoading();
+        $.get("Dashboard2/get_chart_speed_data?src=iqiyi&st=" + st + "&et=" + et, function (resp) {
+            EChartCur.hideLoading();
+            if (!resp.status) {
+                $('#EChartCur').hide();
+                return;
+            }
+            EChartCur.setOption({
+                title: {text: '汇总拆线图【爱奇艺】', subtext: resp.ret.date},
+                xAxis: {
+                    data: resp.ret.xAxis
+                },
+                series: [
+                    {
+                        data: resp.ret.data[0]
+                    },
+                    {
+                        data: resp.ret.data[1]
+                    }
+                ]
+            });
+        }, "json");
+        return EChartCur
+    }
+
+    function EChartSys(chart_obj, st, et) {
+        let EChartSys = Echarts.init(document.getElementById('EChartSys'), "walden");
+        EChartSys.setOption({
+            title: {text: '', subtext: ''},
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    animation: false,
+                    label: {
+                        backgroundColor: '#ccc',
+                        borderColor: '#aaa',
+                        borderWidth: 1,
+                        shadowBlur: 0,
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 0,
+                        color: '#222',
+                        formatter: function (obj) {
+                            if (obj.axisDimension === "y") {
+                                return (obj.value * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
+                            }
+                            return obj.value;
+                        }
+                    }
+                },
+                formatter: function (item) {
+                    return item[0].axisValue + " " + change(item[0].data, "");
+                }
+            },
+            dataZoom: [{}, {
+                type: 'inside'
+            }],
+            legend: {
+                data: ["电信&联通", "移动"],
+            },
+            toolbox: {
+                show: false,
+                feature: {
+                    magicType: {show: true, type: ['stack', 'tiled']},
+                    saveAsImage: {show: true}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: []
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: function (val) {
+                        return (val * 8 / 1024 / 1024 / 1024).toFixed(2) + "Gb";
+                    }
+                }
+            },
+            series: [
+                {
+                    name: "电信&联通",
+                    type: 'line',
+                    symbol: 'emptyCircle',
+                    symbolSize: 8,
+                    smooth: true,
+                    areaStyle: {
+                        normal: {
+                            color: "#78c8eb4a"
+                        }
+                    },
+                    lineStyle: {
+                        normal: {
+                            width: 1.5,
+                        }
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ],
+                        label: {
+                            formatter: function (obj) {
+                                return change(obj.value, "");
+                            }
+                        }
+                    },
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ],
+                        label: {
+                            formatter: function (obj) {
+                                return change(obj.value, "");
+                            }
+                        },
+                    },
+                    data: []
+                },
+                {
+                    name: "移动",
+                    type: 'line',
+                    symbol: 'emptyCircle',
+                    symbolSize: 8,
+                    smooth: true,
+                    areaStyle: {
+                        normal: {
+                            color: "#6fddce4a"
+                        }
+                    },
+                    lineStyle: {
+                        normal: {
+                            width: 1.5,
+                        }
+                    },
+                    markLine: {
+                        data: [
+                            {type: 'average', name: '平均值'}
+                        ],
+                        label: {
+                            formatter: function (obj) {
+                                return change(obj.value, "");
+                            }
+                        }
+                    },
+                    markPoint: {
+                        data: [
+                            {type: 'max', name: '最大值'},
+                            {type: 'min', name: '最小值'}
+                        ],
+                        label: {
+                            formatter: function (obj) {
+                                return change(obj.value, "");
+                            }
+                        },
+                    },
+                    data: []
+                }
+            ]
+        });
+        EChartSys.showLoading();
+        $.get("Dashboard2/get_chart_speed_data?src=system_ware&st=" + st + "&et=" + et, function (resp) {
+            EChartCur.hideLoading();
+            if (!resp.status) {
+                $('#EChartSys').hide();
+                return;
+            }
+            EChartSys.setOption({
+                title: {text: '汇总拆线图【系统】', subtext: resp.ret.date},
+                xAxis: {
+                    data: resp.ret.xAxis
+                },
+                series: [
+                    {
+                        data: resp.ret.data[0]
+                    },
+                    {
+                        data: resp.ret.data[1]
+                    }
+                ]
+            });
+        }, "json");
+    }
 
     return Controller;
 });

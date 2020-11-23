@@ -405,11 +405,7 @@ class Device extends Backend
         }
         if ($st == '' || $et == '') {
             $st = date('Y-m') . '-01';
-            if (date("d") == "01") {
-                $et = $st;
-            } else {
-                $et = date('Y-m-d', time() - 86400);
-            }
+            $et = date('Y-m-d', time() - 86400);
         } else {
             $st = strtotime($st);
             $et = strtotime($et);
@@ -471,7 +467,7 @@ class Device extends Backend
         if ($st == '') {
             $st = date('Y-m-d');
         } else {
-            $st = strtotime(date("y") . "-" . $st);
+            $st = strtotime(date("Y") . "-" . $st);
             if ($st == 0) {
                 return '{"status": false, "code": 102, "msg": "时间格式不正确"}';
             }
