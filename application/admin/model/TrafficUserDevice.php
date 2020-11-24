@@ -147,6 +147,41 @@ class TrafficUserDevice extends Model
         }
     }
 
+    public static function ServiceAddIqiyiDevices($devs)
+    {
+        return http::get(static::$service_api_url . '/add_iqiyi_devices?devs=' . $devs);
+    }
+
+    public static function ServiceGetTaskLogs($name)
+    {
+        return http::get(static::$service_api_url . '/get_task_logs?name=' . $name);
+    }
+
+    public static function ServiceIqiyiCollect($devs)
+    {
+        return http::get(static::$service_api_url . '/iqiyi_collect?devs=' . $devs);
+    }
+
+    public static function ServiceIqiyiCollectAll()
+    {
+        return http::get(static::$service_api_url . '/iqiyi_collect_all');
+    }
+
+    public static function ServiceDailyNetworkCount($date, $src)
+    {
+        return http::get(static::$service_api_url . '/daily_network_count?date=' . $date . '&src=' . $src);
+    }
+
+    public static function ServiceDailyNetworkCount95($type, $date)
+    {
+        return http::get(static::$service_api_url . '/daily_network_count95?type=' . $type . '&date=' . $date);
+    }
+
+    public static function ServiceResetDeviceCount()
+    {
+        return http::get(static::$service_api_url . '/reset_device_count');
+    }
+
     public static function up_time_stamp()
     {
         return strtotime('-1 month');

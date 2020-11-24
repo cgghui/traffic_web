@@ -243,7 +243,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
         return year2 + '-' + month2;
     }
 
-
     function LoadDataByChart(uuid, isp, st, et, chart) {
         chart.showLoading();
         $.get("device/device/get_chart_speed_data?uuid=" + uuid + "&isp=" + isp + "&st=" + st + "&et=" + et, function (resp) {

@@ -207,4 +207,39 @@ class Dashboard2 extends Backend
         $rets['ret']['date'] = $st;
         echo json_encode($rets);
     }
+
+    public function add_iqiyi_devices($devs)
+    {
+        echo $this->model->ServiceAddIqiyiDevices($devs);
+    }
+
+    public function get_task_logs($name)
+    {
+        echo $this->model->ServiceGetTaskLogs($name);
+    }
+
+    public function iqiyi_collect($devs)
+    {
+        echo $this->model->ServiceIqiyiCollect($devs);
+    }
+
+    public function iqiyi_collect_all()
+    {
+        echo $this->model->ServiceIqiyiCollectAll();
+    }
+
+    public function daily_network_count($date, $src)
+    {
+        echo $this->model->ServiceDailyNetworkCount($date, $src);
+    }
+
+    public function daily_network_count95($type, $date)
+    {
+        echo $this->model->ServiceDailyNetworkCount95($type, $date);
+    }
+
+    public function reset_device_count()
+    {
+        echo $this->model->ServiceResetDeviceCount();
+    }
 }
