@@ -251,10 +251,40 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                                 series: [
                                     {
                                         data: resp.ret.data[0],
+                                        markPoint: {
+                                            data: [
+                                                {type: 'max', name: '最大值'},
+                                                {type: 'min', name: '最小值'},
+                                                {
+                                                    coord: [resp.ret.posi[0].date, resp.ret.posi[0].speed],
+                                                    label: {
+                                                        color: "#ff0000",
+                                                        formatter: function (obj) {
+                                                            return "日95 " + change(obj.data.coord[1], "")
+                                                        }
+                                                    },
+                                                },
+                                            ],
+                                        }
                                     },
 
                                     {
                                         data: resp.ret.data[1],
+                                        markPoint: {
+                                            data: [
+                                                {type: 'max', name: '最大值'},
+                                                {type: 'min', name: '最小值'},
+                                                {
+                                                    coord: [resp.ret.posi[1].date, resp.ret.posi[1].speed],
+                                                    label: {
+                                                        color: "#ff0000",
+                                                        formatter: function (obj) {
+                                                            return "日95 " + change(obj.data.coord[1], "")
+                                                        }
+                                                    },
+                                                },
+                                            ],
+                                        }
                                     }
                                 ]
                             });
@@ -426,10 +456,40 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                                 series: [
                                     {
                                         data: resp.ret.data[0],
+                                        markPoint: {
+                                            data: [
+                                                {type: 'max', name: '最大值'},
+                                                {type: 'min', name: '最小值'},
+                                                {
+                                                    coord: [resp.ret.posi[0].date, resp.ret.posi[0].speed],
+                                                    label: {
+                                                        color: "#ff0000",
+                                                        formatter: function (obj) {
+                                                            return "日95 " + change(obj.data.coord[1], "")
+                                                        }
+                                                    },
+                                                },
+                                            ],
+                                        }
                                     },
 
                                     {
                                         data: resp.ret.data[1],
+                                        markPoint: {
+                                            data: [
+                                                {type: 'max', name: '最大值'},
+                                                {type: 'min', name: '最小值'},
+                                                {
+                                                    coord: [resp.ret.posi[1].date, resp.ret.posi[1].speed],
+                                                    label: {
+                                                        color: "#ff0000",
+                                                        formatter: function (obj) {
+                                                            return "日95 " + change(obj.data.coord[1], "")
+                                                        }
+                                                    },
+                                                },
+                                            ],
+                                        }
                                     }
                                 ]
                             });

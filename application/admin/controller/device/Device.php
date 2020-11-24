@@ -418,6 +418,9 @@ class Device extends Backend
             $st = date("Y-m-d", $st);
             $et = date("Y-m-d", $et);
         }
+        if (date("m", strtotime($st)) == date("m")) {
+            $et = date("Y-m-t");
+        }
         $tn = 'fa_traffic_network_counts_95_';
         if ($isp == 'dx' || $isp == 'lt') {
             $tn .= 'dxlt';

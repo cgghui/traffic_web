@@ -103,6 +103,9 @@ class Dashboard2 extends Backend
             $st = date("Y-m-d", $st);
             $et = date("Y-m-d", $et);
         }
+        if (date("m", strtotime($st)) == date("m")) {
+            $et = date("Y-m-t");
+        }
         $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
         if (!$rows) {
             return '{"status": false, "code": 102, "msg": "无数据列表"}';
@@ -176,6 +179,30 @@ class Dashboard2 extends Backend
         }
         foreach ($rows as $k => $row) {
             $rets['ret']['data'][1][] = $row['count_y_u'];
+        }
+        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+        if ($rows) {
+            $row = $rows[0];
+            if ($row['log_upload_time']) {
+                $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
+                $rets['ret']['posi'][0]['date'] = $t[0] . ":" . $t[1];
+                $rets['ret']['posi'][0]['speed'] = $row['count_y_u'];
+            } else {
+                $rets['ret']['posi'][0]['date'] = ":";
+                $rets['ret']['posi'][0]['speed'] = 0;
+            }
+        }
+        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+        if ($rows) {
+            $row = $rows[0];
+            if ($row['log_upload_time']) {
+                $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
+                $rets['ret']['posi'][1]['date'] = $t[0] . ":" . $t[1];
+                $rets['ret']['posi'][1]['speed'] = $row['count_y_u'];
+            } else {
+                $rets['ret']['posi'][1]['date'] = ":";
+                $rets['ret']['posi'][1]['speed'] = 0;
+            }
         }
         $rets['ret']['date'] = $st;
         echo json_encode($rets);
