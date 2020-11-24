@@ -87,7 +87,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
             const cur_date_s = $("#st").val();
             const cur_date_e = $("#et").val();
 
-            EChartCur(Echarts, "", "").on("click", function (obj) {
+            EChartCur(Echarts, cur_date_s, cur_date_e).on("click", function (obj) {
                 if (obj.name === "平均值" || obj.name === "" || obj.name === "最大值" || obj.name === "最小值") {
                     return;
                 }
@@ -262,7 +262,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                     }
                 })
             })
-            EChartSys(Echarts, "", "").on("click", function (obj) {
+            EChartSys(Echarts, cur_date_s, cur_date_e).on("click", function (obj) {
                 if (obj.name === "平均值" || obj.name === "" || obj.name === "最大值" || obj.name === "最小值") {
                     return;
                 }
@@ -653,9 +653,10 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
         $.get("Dashboard2/get_chart_speed_data?src=iqiyi&st=" + st + "&et=" + et, function (resp) {
             EChartCur.hideLoading();
             if (!resp.status) {
-                $('#EChartCur').hide();
                 return;
             }
+            $("#st").val(st);
+            $("#et").val(et);
             EChartCur.setOption({
                 title: {text: '汇总拆线图【爱奇艺】', subtext: resp.ret.date},
                 xAxis: {
@@ -663,10 +664,40 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                 },
                 series: [
                     {
-                        data: resp.ret.data[0]
+                        data: resp.ret.data[0],
+                        markPoint: {
+                            data: [
+                                {type: 'max', name: '最大值'},
+                                {type: 'min', name: '最小值'},
+                                {
+                                    coord: [resp.ret.posi[0].date, resp.ret.posi[0].speed],
+                                    label: {
+                                        color: "#ff0000",
+                                        formatter: function (obj) {
+                                            return "95点 " + change(obj.data.coord[1], "")
+                                        }
+                                    },
+                                },
+                            ],
+                        }
                     },
                     {
-                        data: resp.ret.data[1]
+                        data: resp.ret.data[1],
+                        markPoint: {
+                            data: [
+                                {type: 'max', name: '最大值'},
+                                {type: 'min', name: '最小值'},
+                                {
+                                    coord: [resp.ret.posi[1].date, resp.ret.posi[1].speed],
+                                    label: {
+                                        color: "#ff0000",
+                                        formatter: function (obj) {
+                                            return "95点 " + change(obj.data.coord[1], "")
+                                        }
+                                    },
+                                },
+                            ],
+                        }
                     }
                 ]
             });
@@ -816,6 +847,8 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
             if (!resp.status) {
                 return;
             }
+            $("#st").val(st);
+            $("#et").val(et);
             EChartSys.setOption({
                 title: {text: '汇总拆线图【系统】', subtext: resp.ret.date},
                 xAxis: {
@@ -823,10 +856,40 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                 },
                 series: [
                     {
-                        data: resp.ret.data[0]
+                        data: resp.ret.data[0],
+                        markPoint: {
+                            data: [
+                                {type: 'max', name: '最大值'},
+                                {type: 'min', name: '最小值'},
+                                {
+                                    coord: [resp.ret.posi[0].date, resp.ret.posi[0].speed],
+                                    label: {
+                                        color: "#ff0000",
+                                        formatter: function (obj) {
+                                            return "95点 " + change(obj.data.coord[1], "")
+                                        }
+                                    },
+                                },
+                            ],
+                        }
                     },
                     {
-                        data: resp.ret.data[1]
+                        data: resp.ret.data[1],
+                        markPoint: {
+                            data: [
+                                {type: 'max', name: '最大值'},
+                                {type: 'min', name: '最小值'},
+                                {
+                                    coord: [resp.ret.posi[0].date, resp.ret.posi[0].speed],
+                                    label: {
+                                        color: "#ff0000",
+                                        formatter: function (obj) {
+                                            return "95点 " + change(obj.data.coord[1], "")
+                                        }
+                                    },
+                                },
+                            ],
+                        }
                     }
                 ]
             });

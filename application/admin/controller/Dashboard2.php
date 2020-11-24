@@ -119,6 +119,32 @@ class Dashboard2 extends Backend
         foreach ($rows as $k => $row) {
             $rets['ret']['data'][1][] = $row['speed'];
         }
+        $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $st . '", "' . $et . '", "' . $src . '")');
+        if ($rows) {
+            $row = $rows[0][0];
+            if ($row['get_id'] > 0) {
+                $dt = explode(" ", $row['log_datetime'], 2)[0];
+                $dt = explode("-", $dt, 2)[1];
+                $rets['ret']['posi'][0]['date'] = $dt;
+                $rets['ret']['posi'][0]['speed'] = $row['speed'];
+            } else {
+                $rets['ret']['posi'][0]['date'] = "-";
+                $rets['ret']['posi'][0]['speed'] = 0;
+            }
+        }
+        $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $st . '", "' . $et . '", "' . $src . '")');
+        if ($rows) {
+            $row = $rows[0][0];
+            if ($row['get_id'] > 0) {
+                $dt = explode(" ", $row['log_datetime'], 2)[0];
+                $dt = explode("-", $dt, 2)[1];
+                $rets['ret']['posi'][1]['date'] = $dt;
+                $rets['ret']['posi'][1]['speed'] = $row['speed'];
+            } else {
+                $rets['ret']['posi'][1]['date'] = "-";
+                $rets['ret']['posi'][1]['speed'] = 0;
+            }
+        }
         $rets['ret']['date'] = $st . ' ~ ' . $et;
         echo json_encode($rets);
     }
