@@ -498,6 +498,12 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                 })
             })
 
+            $("#search_r").on("click", function () {
+                let st = $("#st").val();
+                let et = $("#et").val();
+                EChartCur(Echarts, st, et);
+                EChartSys(Echarts, st, et);
+            });
             $("#search_up").on("click", function () {
                 let ss = $("#st").val().split("-"), st, et, day, sx;
                 st = getPreMonth(ss[0] + "-" + ss[1]) + "-01";

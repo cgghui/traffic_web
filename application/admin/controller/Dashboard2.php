@@ -103,9 +103,9 @@ class Dashboard2 extends Backend
             $st = date("Y-m-d", $st);
             $et = date("Y-m-d", $et);
         }
-        if (date("m", strtotime($st)) == date("m")) {
-            $et = date("Y-m-t");
-        }
+//        if (date("m", strtotime($st)) == date("m")) {
+//            $et = date("Y-m-t");
+//        }
         $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
         if (!$rows) {
             return '{"status": false, "code": 102, "msg": "无数据列表"}';
