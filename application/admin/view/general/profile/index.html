@@ -64,20 +64,20 @@
                         </div>
                         <?php if (!$auth->isSuperAdmin()) { ?>
                         <div class="form-group">
-                            <label for="app_id" class="control-label">APP ID:</label>
+                            <label for="app_id" class="control-label">APP ID</label>
                             <input type="text" class="form-control" id="app_id" value="{$appinfo.id}" disabled/>
                         </div>
                         <div class="form-group">
-                            <label for="app_secret_key" class="control-label">SECRET KEY:</label>
+                            <label for="app_secret_key" class="control-label">SECRET KEY</label>
                             <input type="text" class="form-control" id="app_secret_key" value="{$appinfo.secret_key}" disabled/>
                         </div>
                         <?php } ?>
                         <div class="form-group">
-                            <label for="email" class="control-label">{:__('Email')}:</label>
+                            <label for="email" class="control-label">{:__('Email')}</label>
                             <input type="text" class="form-control" id="email" name="row[email]" value="{$admin.email|htmlentities}" data-rule="required;email"/>
                         </div>
                         <div class="form-group">
-                            <label for="nickname" class="control-label">{:__('Nickname')}:</label>
+                            <label for="nickname" class="control-label">{:__('Nickname')}</label>
                             <input type="text" class="form-control" id="nickname" name="row[nickname]" value="{$admin.nickname|htmlentities}" data-rule="required"/>
                         </div>
                         <?php if ($auth->isSuperAdmin()) { ?>
