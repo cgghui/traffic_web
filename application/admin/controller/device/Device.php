@@ -47,9 +47,6 @@ class Device extends Backend
         return $this->view->fetch();
     }
 
-    /**
-     * 添加
-     */
     public function add()
     {
         if ($this->request->isPost()) {
@@ -83,9 +80,6 @@ class Device extends Backend
         return $this->view->fetch();
     }
 
-    /**
-     * 编辑
-     */
     public function edit($ids = null)
     {
         if ($this->auth->isSuperAdmin()) {
@@ -223,9 +217,6 @@ class Device extends Backend
         echo json_encode(['total' => intval($r)]);
     }
 
-    /*
-     * 连接SSH
-     */
     public function connect_ssh($id)
     {
         if ($this->auth->isSuperAdmin()) {
@@ -269,9 +260,6 @@ class Device extends Backend
         }
     }
 
-    /*
-     * 断开客户端的连接
-     */
     public function connect_close($id)
     {
         if ($this->auth->isSuperAdmin()) {
@@ -290,9 +278,6 @@ class Device extends Backend
         }
     }
 
-    /**
-     * 删除
-     */
     public function del($ids = '')
     {
         if (!$this->request->isPost()) {
@@ -419,9 +404,6 @@ class Device extends Backend
             $st = date("Y-m-d", $st);
             $et = date("Y-m-d", $et);
         }
-//        if (date("m", strtotime($st)) == date("m")) {
-//            $et = date("Y-m-t");
-//        }
         $tn = 'fa_traffic_network_counts_95_';
         if ($isp == 'dx' || $isp == 'lt') {
             $tn .= 'dxlt';
@@ -444,14 +426,13 @@ class Device extends Backend
             }
         }
         $rows = $this->model->query('CALL NETWORK_CDN_COUNT_95("' . $uuid . '", "' . $st . '", "' . $et . '")');
+        $rets['ret']['posi']['date'] = "-";
+        $rets['ret']['posi']['speed'] = 0;
         if ($rows) {
             $row = $rows[0][0];
             if ($row['total'] > 0) {
                 $rets['ret']['posi']['date'] = explode("-", $row['posi_date'], 2)[1];
                 $rets['ret']['posi']['speed'] = $row['traffic'];
-            } else {
-                $rets['ret']['posi']['date'] = "-";
-                $rets['ret']['posi']['speed'] = 0;
             }
         }
         echo json_encode($rets);
@@ -488,25 +469,19 @@ class Device extends Backend
             $rets['ret']['data'][] = $row['count_y_u'];
         }
         $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_logs` WHERE device_disk_uuid = "' . $uuid . '" AND log_date = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+        $rets['ret']['posi']['date'] = ":";
+        $rets['ret']['posi']['speed'] = 0;
         if ($rows) {
             $row = $rows[0];
             if ($row['log_upload_time']) {
                 $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
                 $rets['ret']['posi']['date'] = $t[0] . ":" . $t[1];
                 $rets['ret']['posi']['speed'] = $row['count_y_u'];
-            } else {
-                $rets['ret']['posi']['date'] = ":";
-                $rets['ret']['posi']['speed'] = 0;
             }
         }
         echo json_encode($rets);
     }
 
-    /**
-     * 获取设备日志
-     * @param $uuid
-     * @param $date
-     */
     public function get_device_log($uuid, $date)
     {
         if ($this->auth->isSuperAdmin() == false) {
@@ -547,11 +522,6 @@ class Device extends Backend
         echo json_encode($this->model->ServiceDeviceLog($dev, $date, $time));
     }
 
-    /**
-     * 获取流量数据
-     * @param $uuid
-     * @param $date
-     */
     public function get_traffic_count($uuid, $date)
     {
         if ($this->auth->isSuperAdmin() == false) {

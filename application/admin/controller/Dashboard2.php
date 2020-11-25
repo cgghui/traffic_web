@@ -90,7 +90,7 @@ class Dashboard2 extends Backend
             }
             $table = 'fa_traffic_network_counts_dxlt';
             $where = [];
-            if ($this->auth->isSuperAdmin()) {
+            if (!$this->auth->isSuperAdmin()) {
                 $table .= '_user';
                 $where[] = ['user_id', 'EQ', $this->uid];
             }
@@ -110,7 +110,7 @@ class Dashboard2 extends Backend
             }
             $table = 'fa_traffic_network_counts_yd';
             $where = [];
-            if ($this->auth->isSuperAdmin()) {
+            if (!$this->auth->isSuperAdmin()) {
                 $table .= '_user';
                 $where[] = ['user_id', 'EQ', $this->uid];
             }
@@ -156,11 +156,11 @@ class Dashboard2 extends Backend
         } else {
             $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
         }
-        if (!$rows) {
-            return '{"status": false, "code": 102, "msg": "无数据列表"}';
-        }
-        foreach ($rows as $k => $row) {
-            $rets['ret']['data'][1][] = $row['speed'];
+        $rets['ret']['data'][1] = [];
+        if ($rows) {
+            foreach ($rows as $k => $row) {
+                $rets['ret']['data'][1][] = $row['speed'];
+            }
         }
         if ($this->auth->isSuperAdmin()) {
             $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $st . '", "' . $et . '", "' . $src . '", 0)');
@@ -184,6 +184,8 @@ class Dashboard2 extends Backend
         } else {
             $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $st . '", "' . $et . '", "' . $src . '", ' . $this->uid . ')');
         }
+        $rets['ret']['posi'][1]['date'] = "-";
+        $rets['ret']['posi'][1]['speed'] = 0;
         if ($rows) {
             $row = $rows[0][0];
             if ($row['get_id'] > 0) {
@@ -191,9 +193,6 @@ class Dashboard2 extends Backend
                 $dt = explode("-", $dt, 2)[1];
                 $rets['ret']['posi'][1]['date'] = $dt;
                 $rets['ret']['posi'][1]['speed'] = $row['speed'];
-            } else {
-                $rets['ret']['posi'][1]['date'] = "-";
-                $rets['ret']['posi'][1]['speed'] = 0;
             }
         }
         $rets['ret']['date'] = $st . ' ~ ' . $et;
@@ -230,41 +229,40 @@ class Dashboard2 extends Backend
         } else {
             $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" GROUP BY log_upload_time ASC');
         }
-        if (!$rows) {
-            return '{"status": false, "code": 102, "msg": "无数据列表"}';
-        }
-        foreach ($rows as $k => $row) {
-            $rets['ret']['data'][1][] = $row['count_y_u'];
+        $rets['ret']['data'][1] = [];
+        if ($rows) {
+            foreach ($rows as $k => $row) {
+                $rets['ret']['data'][1][] = $row['count_y_u'];
+            }
         }
         if ($this->auth->isSuperAdmin()) {
             $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
         } else {
             $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
         }
+        $rets['ret']['posi'][0]['date'] = ":";
+        $rets['ret']['posi'][0]['speed'] = 0;
         if ($rows) {
             $row = $rows[0];
             if ($row['log_upload_time']) {
                 $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
                 $rets['ret']['posi'][0]['date'] = $t[0] . ":" . $t[1];
                 $rets['ret']['posi'][0]['speed'] = $row['count_y_u'];
-            } else {
-                $rets['ret']['posi'][0]['date'] = ":";
-                $rets['ret']['posi'][0]['speed'] = 0;
             }
         }
         if ($this->auth->isSuperAdmin()) {
             $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
         } else {
             $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
-        }        if ($rows) {
+        }
+        $rets['ret']['posi'][1]['date'] = ":";
+        $rets['ret']['posi'][1]['speed'] = 0;
+        if ($rows) {
             $row = $rows[0];
             if ($row['log_upload_time']) {
                 $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
                 $rets['ret']['posi'][1]['date'] = $t[0] . ":" . $t[1];
                 $rets['ret']['posi'][1]['speed'] = $row['count_y_u'];
-            } else {
-                $rets['ret']['posi'][1]['date'] = ":";
-                $rets['ret']['posi'][1]['speed'] = 0;
             }
         }
         $rets['ret']['date'] = $st;
