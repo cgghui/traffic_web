@@ -65,6 +65,7 @@ class Device extends Backend
                 }
                 $t = date('Y-m-d H:i:s');
                 $data = TrafficUserDevice::GetIpAddress($params['ip']);
+                $params['source'] = 'system_ware';
                 $params['ip_address'] = $data['addr'];
                 $params['isp'] = $data['isp'];
                 $params['status_review'] = 'waiting';
