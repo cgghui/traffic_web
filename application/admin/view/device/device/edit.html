@@ -10,7 +10,7 @@
     {/if}
     <div class="form-group">
         <label for="device_ip" class="control-label col-xs-12 col-sm-2">设备编号:</label>
-        <div class="col-xs-12 col-sm-8" style="padding-top: 8px;">{$row.disk_uuid}</div>
+        <div class="col-xs-12 col-sm-8" style="padding-top: 8px;color: blue; font-weight: bold;">{$row.disk_uuid}</div>
     </div>
     <div class="form-group">
         <label for="device_ip" class="control-label col-xs-12 col-sm-2">{:__('DeviceIP')}:</label>
@@ -79,9 +79,9 @@
         <label class="control-label col-xs-12 col-sm-2">审核:</label>
         <div class="col-xs-12 col-sm-8" style="padding-top: 8px;">
             {switch name="$row.status_review" }
-            {case value="waiting" break="1"}<span>等待审核</span>{/case}
-            {case value="rejected" break="1"}<span>未通过审核</span>{/case}
-            {case value="pass" break="1"}<span>已通过审核</span>{/case}
+            {case value="waiting" break="1"}<span style="color: orangered">等待审核</span>{/case}
+            {case value="rejected" break="1"}<span style="color: red">未通过审核</span>{/case}
+            {case value="pass" break="1"}<span style="color: green">已通过审核</span>{/case}
             {/switch}
         </div>
     </div>
