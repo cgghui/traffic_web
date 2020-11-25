@@ -62,16 +62,24 @@ class Profile extends Backend
             $params = $this->request->post("row/a");
             $params = array_filter(array_intersect_key(
                 $params,
-                array_flip(array('email', 'nickname', 'password', 'avatar'))
+                array_flip(array('email', 'nickname', 'password_old', 'password', 'avatar'))
             ));
             unset($v);
             if (!Validate::is($params['email'], "email")) {
                 $this->error(__("Please input correct email"));
             }
             if (isset($params['password'])) {
+                if (!isset($params['password_old']) || !$params['password_old']) {
+                    $this->error(__("如须修改密码，请输入旧密码。"));
+                }
+                $sess_user = $this->auth->getUserInfo();
+                if (md5(md5($params['password_old']) . $sess_user['salt']) != $sess_user['password']) {
+                    $this->error(__("旧密码错误。"));
+                }
                 if (!Validate::is($params['password'], "/^[\S]{6,16}$/")) {
                     $this->error(__("Please input correct password"));
                 }
+                unset($params['password_old']);
                 $params['salt'] = Random::alnum();
                 $params['password'] = md5(md5($params['password']) . $params['salt']);
             }
