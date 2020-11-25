@@ -16,6 +16,14 @@ use think\Validate;
 class Profile extends Backend
 {
 
+    protected $model = null;
+
+    public function _initialize()
+    {
+        parent::_initialize();
+        $this->model = model('TrafficUserDevice');
+    }
+
     /**
      * 查看
      */
@@ -36,6 +44,10 @@ class Profile extends Backend
             $result = array("total" => $list->total(), "rows" => $list->items());
 
             return json($result);
+        }
+        if (!$this->auth->isSuperAdmin()) {
+            $app = $this->model->query('SELECT id,secret_key,online_device_max FROM `fa_traffic_user_apps` WHERE user_id = 1 AND disabled = "N" LIMIT 1');
+            $this->assign('appinfo', $app[0]);
         }
         return $this->view->fetch();
     }
