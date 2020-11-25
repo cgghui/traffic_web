@@ -44,18 +44,41 @@ class Dashboard2 extends Backend
                 'total_device' => $this->model->count('id'),
                 'total_device_online' => $this->model->where(['status_device' => ['in', $in]])->count('id'),
                 'total_device_review' => $this->model->where(['status_review' => ['neq', 'pass']])->count('id'),
-                'up_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $u_st . '", "' . $u_et . '", "iqiyi")')[0][0],
-                'up_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $u_st . '", "' . $u_et . '", "iqiyi")')[0][0],
-                'cur_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $c_st . '", "' . $c_et . '", "iqiyi")')[0][0],
-                'cur_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $c_st . '", "' . $c_et . '", "iqiyi")')[0][0],
-                'sys_up_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $u_st . '", "' . $u_et . '", "system_ware")')[0][0],
-                'sys_up_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $u_st . '", "' . $u_et . '", "system_ware")')[0][0],
-                'sys_cur_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $c_st . '", "' . $c_et . '", "system_ware")')[0][0],
-                'sys_cur_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $c_st . '", "' . $c_et . '", "system_ware")')[0][0],
+                'up_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $u_st . '", "' . $u_et . '", "iqiyi", 0)')[0][0],
+                'up_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $u_st . '", "' . $u_et . '", "iqiyi", 0)')[0][0],
+                'cur_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $c_st . '", "' . $c_et . '", "iqiyi", 0)')[0][0],
+                'cur_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $c_st . '", "' . $c_et . '", "iqiyi", 0)')[0][0],
+                'sys_up_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $u_st . '", "' . $u_et . '", "system_ware", 0)')[0][0],
+                'sys_up_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $u_st . '", "' . $u_et . '", "system_ware", 0)')[0][0],
+                'sys_cur_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $c_st . '", "' . $c_et . '", "system_ware", 0)')[0][0],
+                'sys_cur_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $c_st . '", "' . $c_et . '", "system_ware", 0)')[0][0],
                 'model' => $this->model,
             ]);
-            return $this->view->fetch();
+        } else {
+            $in = ['online', 'wait_handshake'];
+            $timestamp = $this->model->up_time_stamp();
+            $u_st = date('Y-m-01', $timestamp);
+            $u_et = date('Y-m-t', $timestamp);
+            $c_st = date('Y-m-01');
+            $c_et = date('Y-m-t', time() - 86400);
+            $this->view->assign([
+                'total_user' => 1,
+                'total_device' => $this->model->where(['user_id' => $this->uid])->count('id'),
+                'total_device_online' => $this->model->where(['status_device' => ['in', $in], 'user_id' => $this->uid])->count('id'),
+                'total_device_review' => $this->model->where(['status_review' => ['neq', 'pass'], 'user_id' => $this->uid])->count('id'),
+                'up_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $u_st . '", "' . $u_et . '", "iqiyi", ' . $this->uid . ')')[0][0],
+                'up_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $u_st . '", "' . $u_et . '", "iqiyi", ' . $this->uid . ')')[0][0],
+                'cur_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $c_st . '", "' . $c_et . '", "iqiyi", ' . $this->uid . ')')[0][0],
+                'cur_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $c_st . '", "' . $c_et . '", "iqiyi", ' . $this->uid . ')')[0][0],
+                'sys_up_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $u_st . '", "' . $u_et . '", "system_ware", ' . $this->uid . ')')[0][0],
+                'sys_up_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $u_st . '", "' . $u_et . '", "system_ware", ' . $this->uid . ')')[0][0],
+                'sys_cur_countDL' => $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $c_st . '", "' . $c_et . '", "system_ware", ' . $this->uid . ')')[0][0],
+                'sys_cur_countYD' => $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $c_st . '", "' . $c_et . '", "system_ware", ' . $this->uid . ')')[0][0],
+                'model' => $this->model,
+            ]);
         }
+
+        return $this->view->fetch();
     }
 
     public function count_dl()
@@ -65,8 +88,14 @@ class Dashboard2 extends Backend
             if ($this->request->request('keyField')) {
                 return $this->selectpage();
             }
-            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null, null);
-            $list = $this->model->table('fa_traffic_network_counts_dxlt')->where($where)->order($sort, $order)->paginate($limit);
+            $table = 'fa_traffic_network_counts_dxlt';
+            $where = [];
+            if ($this->auth->isSuperAdmin()) {
+                $table .= '_user';
+                $where[] = ['user_id', 'EQ', $this->uid];
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null, null, $where);
+            $list = $this->model->table($table)->where($where)->order($sort, $order)->paginate($limit);
             $result = array("total" => $list->total(), "rows" => $list->items());
             return json($result);
         }
@@ -79,8 +108,14 @@ class Dashboard2 extends Backend
             if ($this->request->request('keyField')) {
                 return $this->selectpage();
             }
-            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null, null);
-            $list = $this->model->table('fa_traffic_network_counts_yd')->where($where)->order($sort, $order)->paginate($limit);
+            $table = 'fa_traffic_network_counts_yd';
+            $where = [];
+            if ($this->auth->isSuperAdmin()) {
+                $table .= '_user';
+                $where[] = ['user_id', 'EQ', $this->uid];
+            }
+            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null, null, $where);
+            $list = $this->model->table($table)->where($where)->order($sort, $order)->paginate($limit);
             $result = array("total" => $list->total(), "rows" => $list->items());
             return json($result);
         }
@@ -103,10 +138,11 @@ class Dashboard2 extends Backend
             $st = date("Y-m-d", $st);
             $et = date("Y-m-d", $et);
         }
-//        if (date("m", strtotime($st)) == date("m")) {
-//            $et = date("Y-m-t");
-//        }
-        $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+        if ($this->auth->isSuperAdmin()) {
+            $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+        } else {
+            $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+        }
         if (!$rows) {
             return '{"status": false, "code": 102, "msg": "无数据列表"}';
         }
@@ -115,14 +151,22 @@ class Dashboard2 extends Backend
             $rets['ret']['xAxis'][] = explode('-', $row['year_month'], 2)[1];
             $rets['ret']['data'][0][] = $row['speed'];
         }
-        $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+        if ($this->auth->isSuperAdmin()) {
+            $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+        } else {
+            $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+        }
         if (!$rows) {
             return '{"status": false, "code": 102, "msg": "无数据列表"}';
         }
         foreach ($rows as $k => $row) {
             $rets['ret']['data'][1][] = $row['speed'];
         }
-        $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $st . '", "' . $et . '", "' . $src . '")');
+        if ($this->auth->isSuperAdmin()) {
+            $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $st . '", "' . $et . '", "' . $src . '", 0)');
+        } else {
+            $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $st . '", "' . $et . '", "' . $src . '", ' . $this->uid . ')');
+        }
         if ($rows) {
             $row = $rows[0][0];
             if ($row['get_id'] > 0) {
@@ -135,7 +179,11 @@ class Dashboard2 extends Backend
                 $rets['ret']['posi'][0]['speed'] = 0;
             }
         }
-        $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $st . '", "' . $et . '", "' . $src . '")');
+        if ($this->auth->isSuperAdmin()) {
+            $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $st . '", "' . $et . '", "' . $src . '", 0)');
+        } else {
+            $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $st . '", "' . $et . '", "' . $src . '", ' . $this->uid . ')');
+        }
         if ($rows) {
             $row = $rows[0][0];
             if ($row['get_id'] > 0) {
@@ -163,7 +211,11 @@ class Dashboard2 extends Backend
             }
             $st = date("Y-m-d", $st);
         }
-        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY log_upload_time ASC');
+        if ($this->auth->isSuperAdmin()) {
+            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY log_upload_time ASC');
+        } else {
+            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" GROUP BY log_upload_time ASC');
+        }
         if (!$rows) {
             return '{"status": false, "code": 102, "msg": "无数据列表"}';
         }
@@ -173,14 +225,22 @@ class Dashboard2 extends Backend
             $rets['ret']['xAxis'][] = $t[0] . ":" . $t[1];
             $rets['ret']['data'][0][] = $row['count_y_u'];
         }
-        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY log_upload_time ASC');
+        if ($this->auth->isSuperAdmin()) {
+            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY log_upload_time ASC');
+        } else {
+            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" GROUP BY log_upload_time ASC');
+        }
         if (!$rows) {
             return '{"status": false, "code": 102, "msg": "无数据列表"}';
         }
         foreach ($rows as $k => $row) {
             $rets['ret']['data'][1][] = $row['count_y_u'];
         }
-        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+        if ($this->auth->isSuperAdmin()) {
+            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+        } else {
+            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+        }
         if ($rows) {
             $row = $rows[0];
             if ($row['log_upload_time']) {
@@ -192,8 +252,11 @@ class Dashboard2 extends Backend
                 $rets['ret']['posi'][0]['speed'] = 0;
             }
         }
-        $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
-        if ($rows) {
+        if ($this->auth->isSuperAdmin()) {
+            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+        } else {
+            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+        }        if ($rows) {
             $row = $rows[0];
             if ($row['log_upload_time']) {
                 $t = explode(":", explode(" ", $row['log_upload_time'], 2)[1], 3);
