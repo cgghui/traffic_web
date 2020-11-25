@@ -24,7 +24,7 @@
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
                 <li><a href="__PUBLIC__" target="_blank"><i class="fa fa-home" style="font-size:14px;"></i></a></li>
-                <?php if ($this->auth->isSuperAdmin()) { ?>
+                <?php if ($auth->isSuperAdmin()) { ?>
                 <li><a href="javascript:" id="bolt_manager"><i class="fa fa-bolt" style="font-size:14px;"></i></a></li>
                 <?php } ?>
                 <!-- 清除缓存 -->
