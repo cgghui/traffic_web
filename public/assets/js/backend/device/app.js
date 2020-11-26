@@ -74,6 +74,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
+                showExport: false,
+                showToggle: false,
                 columns: [
                     [
                         {checkbox: true},
@@ -96,13 +98,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
                             }
                         },
                         {field: 'created_at', title: '创建时间', operate: false},
-                        {
-                            field: 'operate',
-                            title: '操作',
-                            table: table,
-                            events: Table.api.events.operate,
-                            formatter: Table.api.formatter.operate
-                        }
                     ]
                 ]
             });
@@ -111,6 +106,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'layer'], function ($
             Table.api.bindevent(table);
 
             table.on("load-success.bs.table", function (e, data) {
+                $(".search").hide();
                 const rows = data.rows;
                 let user_ids = [], i;
                 for (i = 0; i < rows.length; i++) {

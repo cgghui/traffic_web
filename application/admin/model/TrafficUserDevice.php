@@ -116,6 +116,13 @@ class TrafficUserDevice extends Model
         return $resp['msg'] == 'successful' && $resp['close_num'] > 0;
     }
 
+    public static function ServiceConnectCloseByApp($app_id)
+    {
+        $resp = http::get(static::$service_api_url . '/connect_close_by_app?app_id=' . $app_id);
+        $resp = json_decode($resp, true);
+        return $resp['msg'] == 'successful' && $resp['close_num'] > 0;
+    }
+
     // ServiceGetOnlineDevice 断开客户端的连接
     public static function ServiceGetOnlineDevice($app_ids)
     {

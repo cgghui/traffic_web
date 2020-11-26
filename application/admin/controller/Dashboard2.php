@@ -27,18 +27,15 @@ class Dashboard2 extends Backend
         $this->model = model('TrafficUserDevice');
     }
 
-    /**
-     * 查看
-     */
     public function index()
     {
+        $in = ['online', 'wait_handshake'];
+        $timestamp = $this->model->up_time_stamp();
+        $u_st = date('Y-m-01', $timestamp);
+        $u_et = date('Y-m-t', $timestamp);
+        $c_st = date('Y-m-01');
+        $c_et = date('Y-m-t', time() - 86400);
         if ($this->auth->isSuperAdmin()) {
-            $in = ['online', 'wait_handshake'];
-            $timestamp = $this->model->up_time_stamp();
-            $u_st = date('Y-m-01', $timestamp);
-            $u_et = date('Y-m-t', $timestamp);
-            $c_st = date('Y-m-01');
-            $c_et = date('Y-m-t', time() - 86400);
             $this->view->assign([
                 'total_user' => model('Admin')->where(['status' => 'normal'])->count('id'),
                 'total_device' => $this->model->count('id'),
@@ -55,12 +52,6 @@ class Dashboard2 extends Backend
                 'model' => $this->model,
             ]);
         } else {
-            $in = ['online', 'wait_handshake'];
-            $timestamp = $this->model->up_time_stamp();
-            $u_st = date('Y-m-01', $timestamp);
-            $u_et = date('Y-m-t', $timestamp);
-            $c_st = date('Y-m-01');
-            $c_et = date('Y-m-t', time() - 86400);
             $this->view->assign([
                 'total_user' => 1,
                 'total_device' => $this->model->where(['user_id' => $this->uid])->count('id'),

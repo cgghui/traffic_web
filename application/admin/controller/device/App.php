@@ -15,12 +15,14 @@ class App extends Backend
 {
 
     protected $model = null;
+    protected $ModelDevice = null;
     private $uid = 0;
 
     public function _initialize()
     {
         parent::_initialize();
         $this->model = model('TrafficUserApp');
+        $this->ModelDevice = model('TrafficUserDevice');
         $this->uid = $this->auth->getUserInfo()['id'];
     }
 
@@ -55,13 +57,6 @@ class App extends Backend
         echo json_encode($r);
     }
 
-    public function get_online_device($ids) {
-        //print_r(model('TrafficUserDevice')->ServiceGetOnlineDevice(explode(',', $ids)));
-    }
-
-    /**
-     * 添加
-     */
     public function add()
     {
         if ($this->request->isPost()) {
@@ -87,129 +82,6 @@ class App extends Backend
         return $this->view->fetch();
     }
 
-    /**
-     * 编辑
-     */
-    public function edit($ids = null)
-    {
-        if ($this->auth->isSuperAdmin()) {
-            $row = $this->model->get(['id' => $ids]);
-        } else {
-            $row = $this->model->get(['id' => $ids, 'user_id' => $this->uid]);
-        }
-        if (!$row) {
-            $this->error(__('No Results were found'));
-        }
-        $row['rejected_reason'] = '';
-        if ($row['status_review'] == 'rejected') {
-            $data = $this->model_log->where(['device_id' => $row['id'], 'status' => 'rejected'])->order('report_datetime DESC')->find();
-            if ($data) {
-                $row['rejected_reason'] = $data['message'];
-            }
-        }
-        $row['status_note'] = '';
-        if ($row['status_device'] == 'abnormal' || $row['status_device'] == 'lock') {
-            $data = $this->model_log->where(['device_id' => $row['id'], 'status' => ['abnormal', 'lock']])->order('report_datetime DESC')->find();
-            if ($data) {
-                $row['status_note'] = $data['message'];
-            }
-        }
-        if ($this->request->isPost()) {
-            $this->token();
-            $params = $this->request->post('row/a');
-            if ($params) {
-                foreach ($params as $f => $v) {
-                    if ($row[$f] == $v) {
-                        unset($params[$f]);
-                        continue;
-                    }
-                    if ($f == 'disk_uuid' || $f == 'created_at' || $f == 'updated_at') {
-                        unset($params[$f]);
-                        continue;
-                    }
-                }
-                // 非管理员不可设置设备所属账号
-                if (isset($params['user_id']) && $params['user_id'] && $this->auth->isSuperAdmin() == false) {
-                    unset($params['user_id']);
-                }
-                if (isset($params['ip']) && $params['ip']) {
-                    $data = TrafficUserDevice::GetIpAddress($params['ip']);
-                    $params['ip_address'] = $data['addr'];
-                    $params['isp'] = $data['isp'];
-                }
-                Db::startTrans();
-                if ($this->auth->isSuperAdmin()) {
-                    if (isset($params['status_review']) && $params['status_review']) {
-                        if ($params['status_review'] == 'rejected') {
-                            $reason = $this->request->post('rejected_reason');
-                            if (!$reason) {
-                                $this->error('请输入驳回原因');
-                            }
-                            $r = $this->model_log->save([
-                                'user_id' => $this->uid,
-                                'device_id' => $row['id'],
-                                'status' => 'rejected',
-                                'message' => $reason,
-                                'report_date' => Db::raw('NOW()'),
-                                'report_datetime' => Db::raw('NOW()')
-                            ]);
-                            if (!$r) {
-                                Db::rollback();
-                                $this->error('驳回记录添加失败');
-                            }
-                        }
-                    }
-                    if (isset($params['status_device']) && $params['status_device']) {
-                        if ($params['status_device'] == 'abnormal' || $params['status_device'] == 'lock') {
-                            $note = $this->request->post('status_note');
-                            if (!$note) {
-                                $this->error('请输入状态备注');
-                            }
-                            $r = $this->model_log->save([
-                                'user_id' => $this->uid,
-                                'device_id' => $row['id'],
-                                'status' => $params['status_device'],
-                                'message' => $note,
-                                'report_date' => ['exp', 'NOW()'],
-                                'report_datetime' => ['exp', 'NOW()']
-                            ]);
-                            if (!$r) {
-                                Db::rollback();
-                                $this->error('状态备注添加失败');
-                            }
-                        }
-                    }
-                }
-                if ($params) {
-                    if ($this->auth->isSuperAdmin() == false) {
-                        $p = ['ip', 'ssh_port', 'ssh_username', 'ssh_password', 'ssh_connect_method'];
-                        foreach ($params as $k => $v) {
-                            if (in_array($k, $p) == true) {
-                                $params['status_review'] = 'waiting';
-                                break;
-                            }
-                        }
-                    }
-                    $params['updated_at'] = Db::raw('NOW()');
-                    $r = $this->model->allowField(true)->isUpdate(true, ['id' => $row['id']])->save($params);
-                    if (!$r) {
-                        Db::rollback();
-                        $this->error('设备数据更新失败');
-                    }
-                }
-                Db::commit();
-                $this->success();
-            }
-            $this->error();
-        }
-        $this->view->assign("row", $row);
-        $this->user_list_html($row['user_id']);
-        return $this->view->fetch();
-    }
-
-    /**
-     * 删除
-     */
     public function del($ids = '')
     {
         if (!$this->request->isPost()) {
@@ -226,16 +98,14 @@ class App extends Backend
                         continue;
                     }
                 }
-                if ($row['status_device'] == 'online') {
-                    $result = $this->model->ServiceConnectClose($row['disk_uuid']);
-                    if (!$result) {
-                        $ret[$row['id']] = 'close connection failed';
-                        continue;
-                    }
-                }
                 $r = $this->model->allowField(true)->isUpdate(true, ['id' => $row['id']])->save(['deleted_at' => Db::raw('NOW()')]);
                 if ($r) {
-                    $ret[$row['id']] = 'successful';
+                    $result = $this->ModelDevice->ServiceConnectCloseByApp($row['id']);
+                    if (!$result) {
+                        $ret[$row['id']] = 'successful but close connect failed';
+                    } else {
+                        $ret[$row['id']] = 'successful';
+                    }
                 } else {
                     $ret[$row['id']] = 'failure';
                 }
@@ -245,39 +115,6 @@ class App extends Backend
         $this->error(__('Parameter %s can not be empty', 'ids'));
     }
 
-    public function detail($ids)
-    {
-        if ($this->auth->isSuperAdmin()) {
-            $row = $this->model->get(['id' => $ids]);
-        } else {
-            $row = $this->model->get(['id' => $ids, 'user_id' => $this->uid]);
-        }
-        if (!$row) {
-            $this->error(__('No Results were found'));
-        }
-        $row['rejected_reason'] = '';
-        if ($row['status_review'] == 'rejected') {
-            $data = $this->model_log->where(['device_id' => $row['id'], 'status' => 'rejected'])->order('report_datetime DESC')->find();
-            if ($data) {
-                $row['rejected_reason'] = $data['message'];
-            }
-        }
-        $row['status_note'] = '';
-        if ($row['status_device'] == 'abnormal' || $row['status_device'] == 'lock') {
-            $data = $this->model_log->where(['device_id' => $row['id'], 'status' => ['abnormal', 'lock']])->order('report_datetime DESC')->find();
-            if ($data) {
-                $row['status_note'] = $data['message'];
-            }
-        }
-        $this->view->assign('row', $row->toArray());
-        $this->view->assign('traffic', $this->model->NetworkCountByUUID($row['disk_uuid']));
-        $this->view->assign('user', model('Admin')->get(['id' => $row['user_id']])->toArray());
-        return $this->view->fetch();
-    }
-
-    /**
-     * 前端用户列表
-     */
     private function user_list_html($selected_ids = 0)
     {
         $column = ['-- 请选择 --'];

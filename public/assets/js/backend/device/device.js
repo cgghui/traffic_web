@@ -130,10 +130,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                         var i = 0, log;
                         for (; i < resp.length; i++) {
                             log = resp[i];
+                            let tm;
                             if (!log.log_upload_time) {
                                 log.log_upload_time = '补点';
+                                tm = ["", ""];
+                            } else {
+                                tm = log.log_upload_time.split(" ")[1].split(":");
                             }
-                            const tm = log.log_upload_time.split(" ")[1].split(":");
                             $(`<tr><td>${i + 1}</td><td>${change(log.count_y_u)}</td><td>${change(log.count_y_d)}</td><td>${log.log_upload_time}</td><td><a href="javascript:" class="show_log">查看</a></td></tr>`)
                                 .attr("query", "dev=" + tr.attr('uuid') + "&date=" + tr.attr('date') + "&time=" + tm[0] + ":" + tm[1])
                                 .insertAfter("#data_box_2 tr:last");
@@ -411,32 +414,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
             table.on("load-success.bs.table", function (e, data) {
                 $(".search").hide();
             });
-            // function load_device_95(t, i, data) {
-            //     if (typeof data[i] === "undefined") {
-            //         return;
-            //     }
-            //     const now = new Date();
-            //     const cur = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-            //     tconst dev = data[i];
-            //     if (dev["isp"] === '') {
-            //         load_device_95(t, i + 1, data);
-            //         return;
-            //     }
-            //     $.get("device/device/get_up_traffic_average?uuid=" + dev["disk_uuid"] + "&isp=" + dev["isp"] , function (resp) {
-            //         $("#table").bootstrapTable('updateRow', {
-            //             index: i,
-            //             replace: true,
-            //             row: {
-            //                 up_month_average: change(resp.total)
-            //             }
-            //         });
-            //         load_device_95(t, i + 1, data);
-            //     }, "json");
-            // }
-            //
-            // table.on("load-success.bs.table", function (e, data) {
-            //     load_device_95(table, 0, data.rows)
-            // })
         },
         add: function () {
             EditOrAddPublic();
