@@ -206,7 +206,7 @@
                     <div class="panel bg-aqua-gradient no-border" style="min-height: 112px;">
                         <div class="panel-body">
                             <div class="ibox-title">
-                                <h5>[ 爱奇艺 ] 当前月统计信息</h5>
+                                <h5>[ 爱奇艺 ] 当前月统计信息 {$cur_date}</h5>
                             </div>
                             <div class="ibox-content">
                                 <h4 class="no-margins"><b>电联 <?=$model->size_format($cur_countDL['speed'])?> &nbsp; 移动 <?=$model->size_format($cur_countYD['speed'])?></b></h4>
@@ -230,7 +230,7 @@
                     <div class="panel bg-aqua-gradient no-border" style="min-height: 112px;">
                         <div class="panel-body">
                             <div class="ibox-title">
-                                <h5>[ 系统监控 ] 当前月统计信息</h5>
+                                <h5>[ 系统监控 ] 当前月统计信息 {$cur_date}</h5>
                             </div>
                             <div class="ibox-content">
                                 <h4 class="no-margins"><b>电联 <?=$model->size_format($sys_cur_countDL['speed'])?> &nbsp; 移动 <?=$model->size_format($sys_cur_countYD['speed'])?></b></h4>
@@ -256,7 +256,7 @@
                     <div class="panel bg-blue-gradient no-border" style="min-height: 112px;">
                         <div class="panel-body">
                             <div class="ibox-title">
-                                <h5>[ 爱奇艺 ] 上个月统计信息</h5>
+                                <h5>[ 爱奇艺 ] 上个月统计信息  {$up_date}</h5>
                             </div>
                             <div class="ibox-content">
                                 <h4 class="no-margins"><b>电联 <?=$model->size_format($up_countDL['speed'])?> &nbsp; 移动 <?=$model->size_format($up_countYD['speed'])?></b></h4>
@@ -280,7 +280,7 @@
                     <div class="panel bg-blue-gradient no-border" style="min-height: 112px;">
                         <div class="panel-body">
                             <div class="ibox-title">
-                                <h5>[ 系统监控 ] 上个月统计信息</h5>
+                                <h5>[ 系统监控 ] 上个月统计信息 {$up_date}</h5>
                             </div>
                             <div class="ibox-content">
                                 <h4 class="no-margins"><b>电联 <?=$model->size_format($sys_up_countDL['speed'])?> &nbsp; 移动 <?=$model->size_format($sys_up_countYD['speed'])?></b></h4>
