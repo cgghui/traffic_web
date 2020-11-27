@@ -45,7 +45,7 @@
             </div>
             <div class="panel-body">
                 <form>
-                    <?php if (!$auth->isSuperAdmin()) { ?>
+                    <?php if (!$auth->isSuperAdmin() && $appinfo) { ?>
                     <div class="form-group">
                         <p><b>APP ID</b></p>
                         <p>{$appinfo.id}</p>
@@ -55,7 +55,11 @@
                         <p>{$appinfo.secret_key}</p>
                     </div>
                     <?php } else { ?>
-                    <p style="color:gray">超级管理员无须应用密钥</p>
+                        <?php if ($auth->isSuperAdmin()) { ?>
+                            <p style="color:gray">超级管理员无须应用密钥</p>
+                        <?php } else { ?>
+                            <p style="color:red">无应用密钥，请联系管理员分配</p>
+                        <?php } ?>
                     <?php } ?>
                 </form>
             </div>

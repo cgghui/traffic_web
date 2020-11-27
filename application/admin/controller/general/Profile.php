@@ -46,8 +46,12 @@ class Profile extends Backend
             return json($result);
         }
         if (!$this->auth->isSuperAdmin()) {
-            $app = $this->model->query('SELECT id,secret_key,online_device_max FROM `fa_traffic_user_apps` WHERE user_id = 1 AND disabled = "N" LIMIT 1');
-            $this->assign('appinfo', $app[0]);
+            $app = $this->model->query('SELECT id,secret_key,online_device_max FROM `fa_traffic_user_apps` WHERE user_id = ' . $this->auth->getUserInfo()['id'] . ' AND disabled = "N" LIMIT 1');
+            if ($app) {
+                $this->assign('appinfo', $app[0]);
+            } else {
+                $this->assign('appinfo', false);
+            }
         }
         return $this->view->fetch();
     }
