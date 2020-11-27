@@ -145,6 +145,12 @@ class Device extends Backend
                 }
                 Db::startTrans();
                 if ($this->auth->isSuperAdmin()) {
+                    if (isset($params['user_id']) && $params['user_id']) {
+                        if ($params['user_id'] != $row['user_id']) {
+                            $this->model->query('DELETE FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` IN(' . $params['user_id'] . ', ' . $row['user_id'] . ')');
+                            $this->model->query('DELETE FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` IN(' . $params['user_id'] . ', ' . $row['user_id'] . ')');
+                        }
+                    }
                     if (isset($params['status_review']) && $params['status_review']) {
                         if ($params['status_review'] == 'rejected') {
                             $reason = $this->request->post('rejected_reason');
