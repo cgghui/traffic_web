@@ -330,7 +330,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'id', title: __('Id'), sortable: true, operate: false},
+                        {
+                            field: 'user_id', title: '归属账户', operate: '=', formatter: function (val) {
+                                return val;
+                            }
+                        },
                         {field: 'disk_uuid', title: '设备编号', operate: 'LIKE'},
                         {field: 'ip', title: '设备IP', operate: 'LIKE'},
                         {field: 'ip_address', title: '所在地', operate: 'LIKE'},
@@ -413,6 +417,26 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
             Table.api.bindevent(table);
             table.on("load-success.bs.table", function (e, data) {
                 $(".search").hide();
+                const rows = data.rows;
+                let user_ids = [], i;
+                for (i = 0; i < rows.length; i++) {
+                    user_ids.push(rows[i].user_id);
+                }
+                $.get("device/app/get_username?user_ids=" + user_ids.join(","), function (resp) {
+                    $.each(resp, function (id, name) {
+                        for (i = 0; i < rows.length; i++) {
+                            if (parseInt(id) === rows[i].user_id) {
+                                $("#table").bootstrapTable('updateRow', {
+                                    index: i,
+                                    replace: true,
+                                    row: {
+                                        user_id: name,
+                                    }
+                                });
+                            }
+                        }
+                    })
+                }, "json");
             });
         },
         add: function () {

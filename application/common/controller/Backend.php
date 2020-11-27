@@ -198,15 +198,15 @@ class Backend extends Controller
 
         // 配置信息
         $config = [
-            'site'           => array_intersect_key($site, array_flip(['name', 'indexurl', 'cdnurl', 'version', 'timezone', 'languages'])),
-            'upload'         => $upload,
-            'modulename'     => $modulename,
+            'site' => array_intersect_key($site, array_flip(['name', 'indexurl', 'cdnurl', 'version', 'timezone', 'languages'])),
+            'upload' => $upload,
+            'modulename' => $modulename,
             'controllername' => $controllername,
-            'actionname'     => $actionname,
-            'jsname'         => 'backend/' . str_replace('.', '/', $controllername),
-            'moduleurl'      => rtrim(url("/{$modulename}", '', false), '/'),
-            'language'       => $lang,
-            'referer'        => Session::get("referer")
+            'actionname' => $actionname,
+            'jsname' => 'backend/' . str_replace('.', '/', $controllername),
+            'moduleurl' => rtrim(url("/{$modulename}", '', false), '/'),
+            'language' => $lang,
+            'referer' => Session::get("referer")
         ];
         $config = array_merge($config, Config::get("view_replace_str"));
 
@@ -238,7 +238,7 @@ class Backend extends Controller
 
     /**
      * 渲染配置信息
-     * @param mixed $name  键名或数组
+     * @param mixed $name 键名或数组
      * @param mixed $value 值
      */
     protected function assignconfig($name, $value = '')
@@ -248,7 +248,7 @@ class Backend extends Controller
 
     /**
      * 生成查询所需要的条件,排序方式
-     * @param mixed   $searchfields   快速查询的字段
+     * @param mixed $searchfields 快速查询的字段
      * @param boolean $relationSearch 是否关联查询
      * @return array
      */
@@ -257,7 +257,7 @@ class Backend extends Controller
         $searchfields = is_null($searchfields) ? $this->searchFields : $searchfields;
         $relationSearch = is_null($relationSearch) ? $this->relationSearch : $relationSearch;
         $search = $this->request->get("search", '');
-        $filter = $this->request->get("filter", '');
+        $filter = $_GET['filter'] ?? '';
         $op = $this->request->get("op", '', 'trim');
         $sort = $this->request->get("sort", !empty($this->model) && $this->model->getPk() ? $this->model->getPk() : 'id');
         $order = $this->request->get("order", "DESC");
@@ -558,7 +558,7 @@ class Backend extends Controller
                 if ($this->selectpageFields == '*') {
                     $result = [
                         $primarykey => isset($item[$primarykey]) ? $item[$primarykey] : '',
-                        $field      => isset($item[$field]) ? $item[$field] : '',
+                        $field => isset($item[$field]) ? $item[$field] : '',
                     ];
                 } else {
                     $result = array_intersect_key(($item instanceof Model ? $item->toArray() : (array)$item), array_flip($fields));

@@ -39,6 +39,16 @@ class Device extends Backend
                 $where[] = ['user_id', 'EQ', $this->uid];
             }
             $where[] = ['deleted_at', 'EXP', 'IS NULL'];
+            if (isset($_GET['filter']) === true) {
+                $filter = json_decode($_GET['filter'], true);
+                if (isset($filter['user_id']) === true) {
+                    $user = model('Admin')->where(['username' => $filter['user_id']])->find();
+                    if ($user) {
+                        $filter['user_id'] = $user['id'];
+                        $_GET['filter'] = json_encode($filter);
+                    }
+                }
+            }
             list($where, $sort, $order, $offset, $limit) = $this->buildparams(null, null, $where);
             $list = $this->model->where($where)->order($sort, $order)->paginate($limit);
             $result = array("total" => $list->total(), "rows" => $list->items());
@@ -62,6 +72,9 @@ class Device extends Backend
                 }
                 $t = date('Y-m-d H:i:s');
                 $data = TrafficUserDevice::GetIpAddress($params['ip']);
+                if (in_array($data['isp'], ['电信', '联通', '移动']) != true) {
+                    $this->error('仅可使用电信、联通、移动。');
+                }
                 $params['source'] = 'system_ware';
                 $params['ip_address'] = $data['addr'];
                 $params['isp'] = $data['isp'];
@@ -125,8 +138,10 @@ class Device extends Backend
                 }
                 if (isset($params['ip']) && $params['ip']) {
                     $data = TrafficUserDevice::GetIpAddress($params['ip']);
-                    $params['ip_address'] = $data['addr'];
-                    $params['isp'] = $data['isp'];
+                    if (in_array($data['isp'], ['电信', '联通', '移动']) == true) {
+                        $params['ip_address'] = $data['addr'];
+                        $params['isp'] = $data['isp'];
+                    }
                 }
                 Db::startTrans();
                 if ($this->auth->isSuperAdmin()) {
@@ -543,10 +558,6 @@ class Device extends Backend
         }
     }
 
-    /**
-     * 获取设备 当天、当月、上月的95带宽速度
-     * @param $uuid
-     */
     public function get_traffic_device_count($uuid)
     {
         if ($this->auth->isSuperAdmin() == false) {
@@ -565,11 +576,6 @@ class Device extends Backend
         echo json_encode($result);
     }
 
-    /**
-     * 获取取点数据
-     * @param $uuid
-     * @param $date
-     */
     public function get_device_dot_log($uuid, $date)
     {
         if ($this->auth->isSuperAdmin() == false) {
@@ -590,9 +596,6 @@ class Device extends Backend
         echo json_encode($result);
     }
 
-    /**
-     * 前端用户列表
-     */
     private function user_list_html($selected_ids = 0)
     {
         $column = ['-- 请选择 --'];
