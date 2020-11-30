@@ -2,6 +2,7 @@
 
 namespace app\admin\controller;
 
+use app\admin\model\Admin;
 use app\common\controller\Backend;
 use fast\Date;
 use think\Config;
@@ -72,7 +73,7 @@ class Dashboard2 extends Backend
                 'model' => $this->model,
             ]);
         }
-
+        $this->user_list_html();
         return $this->view->fetch();
     }
 
@@ -116,7 +117,7 @@ class Dashboard2 extends Backend
         }
     }
 
-    public function get_chart_speed_data($src, $st, $et)
+    public function get_chart_speed_data($src, $st, $et, $user_id)
     {
         if ($st == '' || $et == '') {
             $st = date('Y-m') . '-01';
@@ -134,7 +135,11 @@ class Dashboard2 extends Backend
             $et = date("Y-m-d", $et);
         }
         if ($this->auth->isSuperAdmin()) {
-            $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+            if ($user_id != $this->uid) {
+                $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` = ' . $user_id . ' AND `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+            } else {
+                $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+            }
         } else {
             $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
         }
@@ -147,7 +152,11 @@ class Dashboard2 extends Backend
             $rets['ret']['data'][0][] = $row['speed'];
         }
         if ($this->auth->isSuperAdmin()) {
-            $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+            if ($user_id != $this->uid) {
+                $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $user_id . ' AND `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+            } else {
+                $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
+            }
         } else {
             $rows = $this->model->query('SELECT `year_month`, max(count_y_u) AS speed FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` BETWEEN "' . $st . '" AND "' . $et . '" GROUP BY `year_month`');
         }
@@ -158,7 +167,11 @@ class Dashboard2 extends Backend
             }
         }
         if ($this->auth->isSuperAdmin()) {
-            $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $st . '", "' . $et . '", "' . $src . '", 0)');
+            if ($user_id != $this->uid) {
+                $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $st . '", "' . $et . '", "' . $src . '", ' . $user_id . ')');
+            } else {
+                $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $st . '", "' . $et . '", "' . $src . '", 0)');
+            }
         } else {
             $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("dx", "' . $st . '", "' . $et . '", "' . $src . '", ' . $this->uid . ')');
         }
@@ -175,7 +188,11 @@ class Dashboard2 extends Backend
             }
         }
         if ($this->auth->isSuperAdmin()) {
-            $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $st . '", "' . $et . '", "' . $src . '", 0)');
+            if ($user_id != $this->uid) {
+                $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $st . '", "' . $et . '", "' . $src . '", ' . $user_id . ')');
+            } else {
+                $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $st . '", "' . $et . '", "' . $src . '", 0)');
+            }
         } else {
             $rows = $this->model->query('CALL NETWORK_ALL_COUNT_95("yd", "' . $st . '", "' . $et . '", "' . $src . '", ' . $this->uid . ')');
         }
@@ -297,5 +314,25 @@ class Dashboard2 extends Backend
     public function reset_device_count()
     {
         echo $this->model->ServiceResetDeviceCount();
+    }
+
+    private function user_list_html($selected_ids = 0)
+    {
+        $column = ['-- 请选择账户 --'];
+        foreach ((new Admin)->column('id, username, mobile') as $i => $r) {
+
+            if ($r['id'] == $this->uid) {
+                $selected_ids = $r['id'];
+            }
+            $column[$i] = $r['username'];
+            if ($this->auth->isSuperAdmin() && $r['id'] == $this->uid) {
+                $column[$i] = '管理员（所有设备）';
+            } else {
+                if ($r['mobile']) {
+                    $column[$i] .= ' (' . $r['mobile'] . ')';
+                }
+            }
+        }
+        $this->view->assign('userList', build_select('user_id', $column, [$selected_ids], ['class' => 'form-control selectpicker']));
     }
 }

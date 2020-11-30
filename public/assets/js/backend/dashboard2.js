@@ -716,7 +716,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
             ]
         });
         EChartCur.showLoading();
-        $.get("Dashboard2/get_chart_speed_data?src=iqiyi&st=" + st + "&et=" + et, function (resp) {
+        $.get("Dashboard2/get_chart_speed_data?src=iqiyi&st=" + st + "&et=" + et + "&user_id=" + $("select[name=user_id] option:selected").val(), function (resp) {
             EChartCur.hideLoading();
             if (!resp.status) {
                 return;
@@ -908,7 +908,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
             ]
         });
         EChartSys.showLoading();
-        $.get("Dashboard2/get_chart_speed_data?src=system_ware&st=" + st + "&et=" + et, function (resp) {
+        $.get("Dashboard2/get_chart_speed_data?src=system_ware&st=" + st + "&et=" + et + "&user_id=" + $("select[name=user_id] option:selected").val(), function (resp) {
             EChartSys.hideLoading();
             if (!resp.status) {
                 return;

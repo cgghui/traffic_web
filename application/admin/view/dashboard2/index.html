@@ -305,7 +305,14 @@
         </div>
         <div class="row">
             <div class="col-xs-12">
-                <div class="form-group col-xs-12 col-sm-1">
+                {if condition="$auth->isSuperAdmin()"}
+                <div class="form-group col-xs-12 col-sm-2">
+                    <div class="col-xs-12" style="padding: 0px;">
+                        {$userList}
+                    </div>
+                </div>
+                {/if}
+                <div class="form-group col-xs-12 col-sm-1" style="padding-left: 0;">
                     <label for="st" class="control-label col-xs-2" style="padding: 0; margin-top: 7px;">从</label>
                     <div class="col-xs-10" style="padding: 0px;">
                         <input type="text" class="form-control datetime_picker" name="st" value="<?=date('Y-m') . '-01'?>" placeholder="开始日期" id="st">

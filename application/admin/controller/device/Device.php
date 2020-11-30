@@ -49,7 +49,7 @@ class Device extends Backend
                     }
                 }
             }
-            list($where, $sort, $order, $offset, $limit) = $this->buildparams(null, null, $where);
+            list($where, $sort, $order, $_, $limit) = $this->buildparams(null, null, $where);
             $list = $this->model->where($where)->order($sort, $order)->paginate($limit);
             $result = array("total" => $list->total(), "rows" => $list->items());
             return json($result);
