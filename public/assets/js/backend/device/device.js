@@ -330,6 +330,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'echarts', 'echarts-theme', '
                 columns: [
                     [
                         {checkbox: true},
+                        {field: 'id', title: "app id", sortable: true},
                         {
                             field: 'user_id', title: '归属账户', operate: '=', formatter: function (val) {
                                 return val;
