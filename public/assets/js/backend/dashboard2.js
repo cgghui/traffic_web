@@ -531,7 +531,10 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                 et = getNextMonth(ss[0] + "-" + ss[1]) + "-" + day;
                 EChartCur(Echarts, st, et);
                 EChartSys(Echarts, st, et);
-            })
+            });
+            $("select[name=user_id]").on("change", function () {
+                $("#search_r").trigger("click");
+            });
         }
     };
 
