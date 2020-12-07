@@ -327,6 +327,16 @@ class Dashboard2 extends Backend
         echo $this->model->ServiceResetDeviceCount();
     }
 
+    public function backup_data($date, $del)
+    {
+        echo $this->model->ServiceBackupData($date, $del);
+    }
+
+    public function restore_db($date, $new_table, $device)
+    {
+        echo $this->model->ServiceRestore($date, $new_table, $device);
+    }
+
     private function user_list_html($selected_ids = 0)
     {
         $column = ['-- 请选择账户 --'];
