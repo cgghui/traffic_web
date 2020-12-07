@@ -128,6 +128,7 @@
                             <a href="javascript:;" task_name="daily_network_count" id="daily_network_count" class="btn btn-info btn-manager">汇总设备数据</a>
                             <a href="javascript:;" task_name="daily_network_count95" id="daily_network_count95" class="btn btn-info btn-manager">设备数据取点</a>
                             <a href="javascript:;" task_name="reset_device_count" id="reset_device_count" class="btn btn-info btn-manager">重置统计数据</a>
+                            <a href="javascript:;" task_name="backup_data" id="backup_data" class="btn btn-info btn-manager">备份历史数据</a>
                         </div>
                     </div>
                 </div>
@@ -194,4 +195,19 @@
     <h3 style="margin-top: 0px;">重置统计数据</h3>
     <h5>更新在设备列表页面，所看到的：今日速度、本月速度、上月速度...</h5>
     <a href="javascript:;" id="run_reset_device_count" class="btn btn-success run_task_btn">执行重置</a>
+</div>
+<div id="backup_data_box" style="display: none">
+    <h3 style="margin-top: 0px;">备份历史数据</h3>
+    <h5>备份设备历史的取点速度数据，减轻数据库的负载。不可对当月数据进行备份。</h5>
+    <div class="col-xs-3" style="padding-left: 0;">
+        请输入要备份的月份
+        <input id="backup_date" class="form-control" type="text" value="<?=date('Y-m')?>" />
+    </div>
+    <div class="col-xs-2" style="padding-left: 0; padding-right: 0; padding-top:3px;">
+        <div for="history_del">备份后删除</div>
+        <input id="history_del" type="checkbox" value="1" checked />
+    </div>
+    <div class="col-xs-2" style="padding-top: 18px;">
+        <a href="javascript:;" id="run_backup_data" class="btn btn-success run_task_btn">执行备份</a>
+    </div>
 </div>

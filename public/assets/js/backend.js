@@ -267,169 +267,183 @@ define(['fast', 'template', 'moment'], function (Fast, Template, Moment) {
                 });
             });
             $("body")
-                .on("click", "#run_add_batch", function () {
-                    let btn = $(this);
-                    let ele = btn.parent();
-                    let textVal = ele.find("#add_batch_val").val(), isOK, i;
-                    if (textVal === "") {
-                        layer.alert(`请键入`);
+            .on("click", "#run_add_batch", function () {
+                let btn = $(this);
+                let ele = btn.parent();
+                let textVal = ele.find("#add_batch_val").val(), isOK, i;
+                if (textVal === "") {
+                    layer.alert(`请键入`);
+                    return;
+                }
+                isOK = true;
+                textVal = textVal.split("\n");
+                for (i = 0; i < textVal.length; i++) {
+                    let kv = textVal[i].split(","), j, ok
+                    if (kv.length !== 2) {
+                        layer.alert(`"${textVal[i]}" 格式错误`);
+                        isOK = false;
                         return;
                     }
-                    isOK = true;
-                    textVal = textVal.split("\n");
-                    for (i = 0; i < textVal.length; i++) {
-                        let kv = textVal[i].split(","), j, ok
-                        if (kv.length !== 2) {
-                            layer.alert(`"${textVal[i]}" 格式错误`);
-                            isOK = false;
-                            return;
-                        }
-                        if (kv[0] === "") {
-                            layer.alert(`"${textVal[i]}" 设备编号不可为空`);
-                            isOK = false;
-                            return;
-                        }
-                        ok = true;
-                        for (j = 0; j < KVal.length; j++) {
-                            if (kv[1] === KVal[j]) {
-                                ok = true;
-                                break;
-                            }
-                            ok = false;
-                        }
-                        if (!ok) {
-                            layer.alert(`"${textVal[i]}" 运营商设置不正确`);
-                            isOK = false;
-                            return;
-                        }
-                    }
-                    if (!isOK) {
+                    if (kv[0] === "") {
+                        layer.alert(`"${textVal[i]}" 设备编号不可为空`);
+                        isOK = false;
                         return;
                     }
-                    textVal = textVal.join("|");
-                    $.get(`Dashboard2/add_iqiyi_devices?devs=${textVal}`, function (resp) {
-                        LayerBox.find("#html_box_message").html("");
-                        if (resp.status) {
-                            LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
-                        } else {
-                            LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
+                    ok = true;
+                    for (j = 0; j < KVal.length; j++) {
+                        if (kv[1] === KVal[j]) {
+                            ok = true;
+                            break;
                         }
-                        setTimeout(function () {
-                            get_task_log(LayerBox, "add_iqiyi_devices", btn);
-                        }, 1000);
-                    }, "json");
-                })
-                .on("click", "#run_iqiyi_collect", function () {
-                    let btn = $(this);
-                    let ele = btn.parent();
-                    let textVal = ele.find("#iqiyi_collect_val").val(), isOK, i;
-                    if (textVal === "") {
-                        layer.alert(`请键入`);
+                        ok = false;
+                    }
+                    if (!ok) {
+                        layer.alert(`"${textVal[i]}" 运营商设置不正确`);
+                        isOK = false;
                         return;
                     }
-                    textVal = textVal.split("\n");
-                    textVal = textVal.join(",");
-                    $.get(`Dashboard2/iqiyi_collect?devs=${textVal}`, function (resp) {
-                        LayerBox.find("#html_box_message").html("");
-                        if (resp.status) {
-                            LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
-                        } else {
-                            LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
-                        }
-                        setTimeout(function () {
-                            get_task_log(LayerBox, "iqiyi_collect", btn);
-                        }, 1000);
-                    }, "json");
-                })
-                .on("click", "#run_iqiyi_collect_all", function () {
-                    let btn = $(this);
-                    $.get(`Dashboard2/iqiyi_collect_all`, function (resp) {
-                        LayerBox.find("#html_box_message").html("");
-                        if (resp.status) {
-                            LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
-                        } else {
-                            LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
-                        }
-                        setTimeout(function () {
-                            get_task_log(LayerBox, "iqiyi_collect_all", btn);
-                        }, 1000);
-                    }, "json");
-                })
-                .on("click", "#run_daily_network_count", function () {
-                    let btn = $(this);
-                    let ele = btn.parent().parent();
-                    let year_month = ele.find("#dnc_year_month").val(),
-                        data_src = ele.find("#dnc_data_src").val();
-                    if (year_month === "") {
-                        layer.alert(`请键入日期`);
-                        return;
+                }
+                if (!isOK) {
+                    return;
+                }
+                textVal = textVal.join("|");
+                $.get(`Dashboard2/add_iqiyi_devices?devs=${textVal}`, function (resp) {
+                    LayerBox.find("#html_box_message").html("");
+                    if (resp.status) {
+                        LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
+                    } else {
+                        LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
                     }
-                    if (data_src === "") {
-                        layer.alert(`请键入数据源`);
-                        return;
+                    setTimeout(function () {
+                        get_task_log(LayerBox, "add_iqiyi_devices", btn);
+                    }, 1000);
+                }, "json");
+            })
+            .on("click", "#run_iqiyi_collect", function () {
+                let btn = $(this);
+                let ele = btn.parent();
+                let textVal = ele.find("#iqiyi_collect_val").val(), isOK, i;
+                if (textVal === "") {
+                    layer.alert(`请键入`);
+                    return;
+                }
+                textVal = textVal.split("\n");
+                textVal = textVal.join(",");
+                $.get(`Dashboard2/iqiyi_collect?devs=${textVal}`, function (resp) {
+                    LayerBox.find("#html_box_message").html("");
+                    if (resp.status) {
+                        LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
+                    } else {
+                        LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
                     }
-                    if (data_src !== "iqiyi" && data_src !== "system_ware") {
-                        layer.alert(`数据源，仅可以设置为：iqiyi和system_ware`);
-                        return;
+                    setTimeout(function () {
+                        get_task_log(LayerBox, "iqiyi_collect", btn);
+                    }, 1000);
+                }, "json");
+            })
+            .on("click", "#run_iqiyi_collect_all", function () {
+                let btn = $(this);
+                $.get(`Dashboard2/iqiyi_collect_all`, function (resp) {
+                    LayerBox.find("#html_box_message").html("");
+                    if (resp.status) {
+                        LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
+                    } else {
+                        LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
                     }
-                    $.get(`Dashboard2/daily_network_count?date=` + year_month + `&src=` + data_src, function (resp) {
-                        LayerBox.find("#html_box_message").html("");
-                        if (resp.status) {
-                            LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
-                        } else {
-                            LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
-                        }
-                        setTimeout(function () {
-                            get_task_log(LayerBox, "daily_network_count", btn);
-                        }, 1000);
-                    }, "json");
-                })
-                .on("click", "#run_daily_network_count95", function () {
-                    let btn = $(this);
-                    let ele = btn.parent().parent();
-                    let year_month = ele.find("#dnc95_year_month").val(),
-                        data_type = ele.find("#dnc95_type").val();
-                    if (year_month === "") {
-                        layer.alert(`请键入日期`);
-                        return;
+                    setTimeout(function () {
+                        get_task_log(LayerBox, "iqiyi_collect_all", btn);
+                    }, 1000);
+                }, "json");
+            })
+            .on("click", "#run_daily_network_count", function () {
+                let btn = $(this);
+                let ele = btn.parent().parent();
+                let year_month = ele.find("#dnc_year_month").val(),
+                    data_src = ele.find("#dnc_data_src").val();
+                if (year_month === "") {
+                    layer.alert(`请键入日期`);
+                    return;
+                }
+                if (data_src === "") {
+                    layer.alert(`请键入数据源`);
+                    return;
+                }
+                if (data_src !== "iqiyi" && data_src !== "system_ware") {
+                    layer.alert(`数据源，仅可以设置为：iqiyi和system_ware`);
+                    return;
+                }
+                $.get(`Dashboard2/daily_network_count?date=` + year_month + `&src=` + data_src, function (resp) {
+                    LayerBox.find("#html_box_message").html("");
+                    if (resp.status) {
+                        LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
+                    } else {
+                        LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
                     }
-                    if (data_type === "") {
-                        layer.alert(`请键入类型 m或d`);
-                        return;
+                    setTimeout(function () {
+                        get_task_log(LayerBox, "daily_network_count", btn);
+                    }, 1000);
+                }, "json");
+            })
+            .on("click", "#run_daily_network_count95", function () {
+                let btn = $(this);
+                let ele = btn.parent().parent();
+                let year_month = ele.find("#dnc95_year_month").val(),
+                    data_type = ele.find("#dnc95_type").val();
+                if (year_month === "") {
+                    layer.alert(`请键入日期`);
+                    return;
+                }
+                if (data_type === "") {
+                    layer.alert(`请键入类型 m或d`);
+                    return;
+                }
+                if (data_type !== "m" && data_type !== "d") {
+                    layer.alert(`类型，仅可以设置为：m和d`);
+                    return;
+                }
+                $.get(`Dashboard2/daily_network_count95?type=` + data_type + `&date=` + year_month, function (resp) {
+                    LayerBox.find("#html_box_message").html("");
+                    if (resp.status) {
+                        LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
+                    } else {
+                        LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
                     }
-                    if (data_type !== "m" && data_type !== "d") {
-                        layer.alert(`类型，仅可以设置为：m和d`);
-                        return;
+                    setTimeout(function () {
+                        get_task_log(LayerBox, "daily_network_count95", btn);
+                    }, 1000);
+                }, "json");
+            })
+            .on("click", "#run_reset_device_count", function () {
+                let btn = $(this);
+                $.get(`Dashboard2/reset_device_count`, function (resp) {
+                    LayerBox.find("#html_box_message").html("");
+                    if (resp.status) {
+                        LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
+                    } else {
+                        LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
                     }
-                    $.get(`Dashboard2/daily_network_count95?type=` + data_type + `&date=` + year_month, function (resp) {
-                        LayerBox.find("#html_box_message").html("");
-                        if (resp.status) {
-                            LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
-                        } else {
-                            LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
-                        }
-                        setTimeout(function () {
-                            get_task_log(LayerBox, "daily_network_count95", btn);
-                        }, 1000);
-                    }, "json");
-                })
-                .on("click", "#run_reset_device_count", function () {
-                    let btn = $(this);
-                    $.get(`Dashboard2/reset_device_count`, function (resp) {
-                        LayerBox.find("#html_box_message").html("");
-                        if (resp.status) {
-                            LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
-                        } else {
-                            LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
-                        }
-                        setTimeout(function () {
-                            get_task_log(LayerBox, "reset_device_count", btn);
-                        }, 1000);
-                    }, "json");
-                });
+                    setTimeout(function () {
+                        get_task_log(LayerBox, "reset_device_count", btn);
+                    }, 1000);
+                }, "json");
+            })
+            .on("click", "#run_backup_data", function () {
+                let btn = $(this);
+                $.get(`Dashboard2/reset_device_count`, function (resp) {
+                    LayerBox.find("#html_box_message").html("");
+                    if (resp.status) {
+                        LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
+                    } else {
+                        LayerBox.find("#html_box_message").html(`<p style='color:green'>任务添加失败，${resp.msg}</p>`);
+                    }
+                    setTimeout(function () {
+                        get_task_log(LayerBox, "reset_device_count", btn);
+                    }, 1000);
+                }, "json");
+            });
 
             function get_task_log(box, task_name, btn) {
-                if (task_name === "iqiyi_collect_all" || task_name === "reset_device_count") {
+                if (task_name === "iqiyi_collect_all" || task_name === "reset_device_count" || task_name === "backup_data") {
                     box.find("#html_box_message").css("height", "400px");
                 } else if (task_name === "iqiyi_collect") {
                     box.find("#html_box_message").css("height", "190px");

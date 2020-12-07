@@ -206,7 +206,7 @@ class Dashboard2 extends Backend
         echo json_encode($rets);
     }
 
-    public function get_chart_speed_date_detail($src, $st)
+    public function get_chart_speed_date_detail($src, $st, $uid)
     {
         if ($st == '') {
             $st = date('Y-m');
@@ -218,7 +218,11 @@ class Dashboard2 extends Backend
             $st = date("Y-m-d", $st);
         }
         if ($this->auth->isSuperAdmin()) {
-            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY log_upload_time ASC');
+            if ($uid == $this->uid) {
+                $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY log_upload_time ASC');
+            } else {
+                $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` = ' . $uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" GROUP BY log_upload_time ASC');
+            }
         } else {
             $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" GROUP BY log_upload_time ASC');
         }
@@ -232,7 +236,11 @@ class Dashboard2 extends Backend
             $rets['ret']['data'][0][] = $row['count_y_u'];
         }
         if ($this->auth->isSuperAdmin()) {
-            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY log_upload_time ASC');
+            if ($uid == $this->uid) {
+                $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY log_upload_time ASC');
+            } else {
+                $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" GROUP BY log_upload_time ASC');
+            }
         } else {
             $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" GROUP BY log_upload_time ASC');
         }
@@ -243,7 +251,11 @@ class Dashboard2 extends Backend
             }
         }
         if ($this->auth->isSuperAdmin()) {
-            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+            if ($uid == $this->uid) {
+                $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+            } else {
+                $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` = ' . $uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+            }
         } else {
             $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_dxlt_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
         }
@@ -258,7 +270,11 @@ class Dashboard2 extends Backend
             }
         }
         if ($this->auth->isSuperAdmin()) {
-            $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+            if ($uid == $this->uid) {
+                $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd` WHERE `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+            } else {
+                $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
+            }
         } else {
             $rows = $this->model->query('SELECT count_y_u, log_upload_time FROM `fa_traffic_network_counts_yd_user` WHERE `user_id` = ' . $this->uid . ' AND `source` = "' . $src . '" AND `year_month` = "' . $st . '" ORDER BY count_y_u DESC LIMIT 14, 1');
         }

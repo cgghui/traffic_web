@@ -237,7 +237,8 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                             ]
                         });
                         chart.showLoading();
-                        $.get("Dashboard2/get_chart_speed_date_detail?src=iqiyi&st=" + obj.name, function (resp) {
+                        let uid = $('select[name="user_id"] option:selected').val();
+                        $.get("Dashboard2/get_chart_speed_date_detail?src=iqiyi&st=" + obj.name + "&uid=" + uid, function (resp) {
                             chart.hideLoading();
                             if (!resp.status) {
                                 layer.alert("加载数据失败！");
@@ -306,7 +307,8 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                     content: `<div id="EChart_day" class="btn-refresh" style="height:400px;width:100%;padding:10px;"></div>`,
                     area: ['80%', '50%'],
                     success: function (o, i) {
-                        let chart = Echarts.init(document.getElementById('EChart_day'), "walden");
+                        let chart = Echarts.init(document.getElementById('EChart_day'), "walden"),uid;
+                        uid = $('select[name="user_id"] option:selected').val();
                         chart.setOption({
                             title: {text: '', subtext: ''},
                             tooltip: {
@@ -442,7 +444,7 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'table', 'echarts', 'echart
                             ]
                         });
                         chart.showLoading();
-                        $.get("Dashboard2/get_chart_speed_date_detail?src=system_ware&st=" + obj.name, function (resp) {
+                        $.get("Dashboard2/get_chart_speed_date_detail?src=system_ware&st=" + obj.name + "&uid=" + uid, function (resp) {
                             chart.hideLoading();
                             if (!resp.status) {
                                 layer.alert("加载数据失败！");
