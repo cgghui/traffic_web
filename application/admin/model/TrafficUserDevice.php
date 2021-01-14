@@ -194,13 +194,13 @@ class TrafficUserDevice extends Model
         return http::get(static::$service_api_url . '/backup_data/' . $date . '/' . $del);
     }
 
-    public static function ServiceRestore($date, $new_table, $device)
+    public static function ServiceRestore($date, $new_table, $new_id, $device)
     {
         if ($device == '') {
             $device = 'xxx';
         }
         $device = bin2hex($device);
-        return http::get(static::$service_api_url . '/restore/' . $date . '/' . $new_table . '/' . $device);
+        return http::get(static::$service_api_url . '/restore/' . $date . '/' . $new_table . '/' . $new_id . '/' . $device);
     }
 
     public static function up_time_stamp()

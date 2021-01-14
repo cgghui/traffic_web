@@ -146,8 +146,8 @@
 </div>
 <div id="batch_add_device_box" style="display: none">
     <h3 style="margin-top: 0px;">批量添加设备</h3>
-    <h5>格式：<span style="color: #003dff">设备编号,运营商</span>，运营商可用为：电信、联通、移动，每行指定一个设备</h5>
-    <h5>注意：设备编号和运营商之间的逗号为英式逗号</h5>
+    <h5>格式：<span style="color: #003dff">设备编号,运营商,用户ID,汇总限期</span> 运营商可用为：电信、联通、移动，每行指定一个设备；用户ID：须要先创建用户；汇总限期：须到达该日期才进行数据汇总</h5>
+    <h5>注意：<span style="color: #003dff">设备编号,运营商,用户ID,汇总限期</span>之间的逗号为英式逗号，每行一条。</h5>
     <textarea id="add_batch_val" style="width: 100%; height: 200px; margin-bottom: 10px;" class="form-control"></textarea>
     <a href="javascript:;" id="run_add_batch" class="btn btn-success run_task_btn">执行添加</a>
 </div>
@@ -219,13 +219,17 @@
         请输入要恢复的月份
         <input id="restore_date" class="form-control" type="text" value="<?=date('Y-m')?>" />
     </div>
+    <div class="col-xs-5" style="padding-left: 0;">
+        恢复至
+        <input id="restore_device" class="form-control" placeholder="可不填，默认为当前数据库" type="text" value="" />
+    </div>
     <div class="col-xs-1" style="padding-left: 0; padding-right: 0; padding-top:3px;">
         <div for="new_table">新表</div>
         <input id="new_table" type="checkbox" value="1" checked />
     </div>
-    <div class="col-xs-6" style="padding-left: 0;">
-        恢复至
-        <input id="restore_device" class="form-control" type="text" value="" />
+    <div class="col-xs-1" style="padding-left: 0; padding-right: 0; padding-top:3px;">
+        <div for="new_table">新ID</div>
+        <input id="new_id" type="checkbox" value="1" checked />
     </div>
     <div class="col-xs-2" style="padding-top: 18px;">
         <a href="javascript:;" id="run_restore" class="btn btn-success run_task_btn">执行恢复</a>

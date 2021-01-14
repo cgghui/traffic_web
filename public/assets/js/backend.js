@@ -447,11 +447,24 @@ define(['fast', 'template', 'moment'], function (Fast, Template, Moment) {
                         }, 1000);
                     }, "json");
                 })
+                .on("click", "#new_table", function () {
+                    let ele = $(this).parents("#html_box");
+                    if ($(this).prop("checked") === true) {
+                        ele.find("#new_id").prop("checked", true);
+                    }
+                })
+                .on("click", "#new_id", function () {
+                    let ele = $(this).parents("#html_box");
+                    if (ele.find("#new_table").prop("checked") === true) {
+                        $(this).prop("checked", true);
+                    }
+                })
                 .on("click", "#run_restore", function () {
                     let btn = $(this), new_table, ele;
                     ele = $(this).parents("#html_box");
                     new_table = ele.find("#new_table").prop("checked") ? "on" : "off";
-                    $.get(`Dashboard2/restore_db?date=` + ele.find("#restore_date").val() + `&new_table=` + new_table + `&device=` + url_encode(ele.find("#restore_device").val()), function (resp) {
+                    let new_id = ele.find("#new_id").prop("checked") ? "on" : "off";
+                    $.get(`Dashboard2/restore_db?date=` + ele.find("#restore_date").val() + `&new_table=` + new_table + `&new_id=` + new_id + `&device=` + url_encode(ele.find("#restore_device").val()), function (resp) {
                         LayerBox.find("#html_box_message").html("");
                         if (resp.status) {
                             LayerBox.find("#html_box_message").html("<p style='color:green'>任务添加成功</p>");
