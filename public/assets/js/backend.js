@@ -7,7 +7,6 @@ define(['fast', 'template', 'moment'], function (Fast, Template, Moment) {
                 badgeList = {};
                 $.each(params, function (k, v) {
                     $url = Fast.api.fixurl(k);
-
                     if ($.isArray(v)) {
                         $nums = typeof v[0] !== 'undefined' ? v[0] : 0;
                         $color = typeof v[1] !== 'undefined' ? v[1] : colorArr[(!isNaN($nums) ? $nums : $nums.length) % $colorNums];
@@ -279,7 +278,7 @@ define(['fast', 'template', 'moment'], function (Fast, Template, Moment) {
                     textVal = textVal.split("\n");
                     for (i = 0; i < textVal.length; i++) {
                         let kv = textVal[i].split(","), j, ok
-                        if (kv.length !== 2) {
+                        if (kv.length !== 4) {
                             layer.alert(`"${textVal[i]}" 格式错误`);
                             isOK = false;
                             return;
