@@ -156,7 +156,7 @@ class TrafficUserDevice extends Model
 
     public static function ServiceAddIqiyiDevices($devs)
     {
-        return http::get(static::$service_api_url . '/add_iqiyi_devices?devs=' . $devs);
+        return http::get(static::$service_api_url . '/add_iqiyi_devices?devs=' . urlencode($devs));
     }
 
     public static function ServiceGetTaskLogs($name)
