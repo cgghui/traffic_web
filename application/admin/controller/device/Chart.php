@@ -222,26 +222,6 @@ class Chart extends Backend
         echo json_encode(['total' => intval($r)]);
     }
 
-    /*
-     * 连接SSH
-     */
-    public function connect_ssh($id)
-    {
-        if ($this->auth->isSuperAdmin()) {
-            $row = $this->model->get(['id' => $id]);
-        } else {
-            $row = $this->model->get(['id' => $id, 'user_id' => $this->uid]);
-        }
-        if (!$row) {
-            $this->error(__('No Results were found'));
-        }
-        $result = $this->model->ServiceConnectSSH($row);
-        if ($result['msg'] != 'successful') {
-            $this->error($result['msg']);
-        }
-        $this->success();
-    }
-
     public function is_online($uuid)
     {
         if ($this->auth->isSuperAdmin()) {

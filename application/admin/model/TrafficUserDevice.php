@@ -81,20 +81,6 @@ class TrafficUserDevice extends Model
         return number_format($num, 2) . $format;
     }
 
-    // ServiceConnectSSH 连接SSH
-    public static function ServiceConnectSSH($row)
-    {
-        $params = [
-            'type' => $row['ssh_connect_method'],
-            'ip' => $row['ip'],
-            'port' => $row['ssh_port'],
-            'username' => $row['ssh_username'],
-            'password' => $row['ssh_password'],
-        ];
-        $resp = http::post(static::$service_api_url . '/connect_ssh', json_encode($params));
-        return json_decode($resp, true);
-    }
-
     // ServiceGetOnlineDevices 获得在线设备列表
     public static function ServiceGetOnlineDevices()
     {
