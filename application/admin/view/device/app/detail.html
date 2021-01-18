@@ -17,25 +17,6 @@
         <td>{:$row.ip} ({:$row.ip_address}/{:$row.isp})</td>
     </tr>
     <tr>
-        <td>SSH连接方式</td>
-        <td><?php
-            $s = ['direct'=>__('DirectConnect'), 'hidden'=>__('HideConnect'), 'later'=>__('LaterConnect')];
-            echo $s[$row['ssh_connect_method']];
-            ?>
-        </td>
-    </tr>
-    <tr>
-        <td>SSH端口</td>
-        <td>{:$row.ssh_port}</td>
-    </tr>
-    <tr>
-        <td>SSH账号&密码</td>
-        <td>
-            <span style="border-bottom: 1px solid #d6d6d6">{:$row.ssh_username}</span>
-            <span style="border-bottom: 1px solid #d6d6d6">{:$row.ssh_password}</span>
-        </td>
-    </tr>
-    <tr>
         <td>硬盘uuid</td>
         <td>{:$row.disk_uuid}</td>
     </tr>

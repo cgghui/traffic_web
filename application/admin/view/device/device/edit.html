@@ -1,55 +1,36 @@
 <form id="add-form" class="form-horizontal form-ajax" role="form" data-toggle="validator" method="POST" action="">
     {:token()}
+    <div class="form-group">
+        <label for="device_ip" class="control-label col-xs-12 col-sm-2">设备编号</label>
+        <div class="col-xs-12 col-sm-8" style="padding-top: 8px;color: blue; font-weight: bold;">{$row.disk_uuid}</div>
+    </div>
     {if condition="$auth->isSuperAdmin()"}
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('BelongToUser')}:</label>
+        <label class="control-label col-xs-12 col-sm-2">{:__('BelongToUser')}</label>
         <div class="col-xs-12 col-sm-8">
             {$userList}
         </div>
     </div>
     {/if}
     <div class="form-group">
-        <label for="device_ip" class="control-label col-xs-12 col-sm-2">设备编号:</label>
-        <div class="col-xs-12 col-sm-8" style="padding-top: 8px;color: blue; font-weight: bold;">{$row.disk_uuid}</div>
-    </div>
-    <div class="form-group">
-        <label for="device_ip" class="control-label col-xs-12 col-sm-2">{:__('DeviceIP')}:</label>
+        <label for="device_ip" class="control-label col-xs-12 col-sm-2">服务器IP</label>
         <div class="col-xs-12 col-sm-8">
-            <input type="text" class="form-control" id="device_ip" name="row[ip]" value="{$row.ip|htmlentities}" data-rule="required;ip" data-rule-ip="[/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/, '{:__('IpInvalid')}']" />
+            <input type="text" class="form-control" id="device_ip" name="row[ip]" value="{$row.ip|htmlentities}"  />
         </div>
     </div>
     <div class="form-group">
-        <label for="ssh_port" class="control-label col-xs-12 col-sm-2">{:__('SSHPort')}:</label>
+        <label for="device_isp" class="control-label col-xs-12 col-sm-2">网络运营商</label>
         <div class="col-xs-12 col-sm-8">
-            <input type="text" class="form-control" id="ssh_port" name="row[ssh_port]" value="{$row.ssh_port|htmlentities}" data-rule="required;integer; range[1~65536]" />
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="ssh_username" class="control-label col-xs-12 col-sm-2">{:__('SSHUsername')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input type="text" class="form-control" id="ssh_username" name="row[ssh_username]" autocomplete="off" value="{$row.ssh_username|htmlentities}" data-rule="required" />
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="ssh_password" class="control-label col-xs-12 col-sm-2">{:__('SSHPassword')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            <input type="text" class="form-control" id="ssh_password" name="row[ssh_password]" autocomplete="off" value="{$row.ssh_password|htmlentities}" />
-        </div>
-    </div>
-    <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">{:__('ConnectType')}:</label>
-        <div class="col-xs-12 col-sm-8">
-            {:build_radios('row[ssh_connect_method]', ['direct'=>__('DirectConnect'), 'hidden'=>__('HideConnect'), 'later'=>__('LaterConnect')], $row['ssh_connect_method'])}
-            <div style="padding-top: 4px;color: red">
-                <div id="connect_type_direct_tip" class="connect_type_tip col-xs-12 col-sm-12" style="padding-left: 0">{:__('DirectConnectDesc')}</div>
-                <div id="connect_type_hidden_tip" class="connect_type_tip col-xs-12 col-sm-12 hide" style="padding-left: 0">{:__('HideConnectDesc')}，<a href="{$site.soft_down_url}" target="_blank">download soft</a></div>
-                <div id="connect_type_later_tip" class="connect_type_tip col-xs-12 col-sm-12 hide" style="padding-left: 0">{:__('LaterConnectDesc')}</div>
-            </div>
+            <select id="device_isp" class="form-control selectpicker" name="row[isp]" val="{$row.isp}">
+                <option value="电信"{if condition="$row['isp'] == '电信'"} selected="selected"{/if}>电信</option>
+                <option value="联通"{if condition="$row['isp'] == '联通'"} selected="selected"{/if}>联通</option>
+                <option value="移动"{if condition="$row['isp'] == '移动'"} selected="selected"{/if}>移动</option>
+            </select>
         </div>
     </div>
     {if condition="$auth->isSuperAdmin()"}
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">审核:</label>
+        <label class="control-label col-xs-12 col-sm-2">审核</label>
         <div class="col-xs-12 col-sm-8">
             {:build_radios('row[status_review]', ['waiting'=>'等待', 'rejected'=>'驳回', 'pass'=>'通过'], $row['status_review'])}
         </div>
@@ -58,11 +39,11 @@
     <div class="{:$class}" id="rejected_reason_box">
         <label for="rejected_reason" class="control-label col-xs-12 col-sm-2">驳回原因:</label>
         <div class="col-xs-12 col-sm-8">
-            <textarea class="form-control" id="rejected_reason" name="rejected_reason">{:$row.rejected_reason}</textarea>
+            <textarea class="form-control" id="rejected_reason" name="rejected_reason" style="height:100px;">{:$row.rejected_reason}</textarea>
         </div>
     </div>
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">状态:</label>
+        <label class="control-label col-xs-12 col-sm-2">状态</label>
         <div class="col-xs-12 col-sm-8">
             {:build_radios('row[status_device]', ['wait_handshake' => '就绪', 'abnormal'=>'异常', 'lock'=>'锁定'], $row['status_device'])}
         </div>
@@ -71,12 +52,12 @@
     <div class="{:$class}" id="status_note_box">
         <label for="status_note" class="control-label col-xs-12 col-sm-2">状态备注:</label>
         <div class="col-xs-12 col-sm-8">
-            <textarea class="form-control" id="status_note" name="status_note">{:$row.status_note}</textarea>
+            <textarea class="form-control" id="status_note" name="status_note" style="height:120px;">{:$row.status_note}</textarea>
         </div>
     </div>
     {else/}
     <div class="form-group">
-        <label class="control-label col-xs-12 col-sm-2">审核:</label>
+        <label class="control-label col-xs-12 col-sm-2">审核</label>
         <div class="col-xs-12 col-sm-8" style="padding-top: 8px;">
             {switch name="$row.status_review" }
             {case value="waiting" break="1"}<span style="color: orangered">等待审核</span>{/case}
